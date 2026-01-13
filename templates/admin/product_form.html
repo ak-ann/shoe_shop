@@ -1,0 +1,318 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+  {% if product %}
+    Редактирование товара
+  {% else %}
+    Добавление товара
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 mb-0 text-dark">
+        {% if product %}
+          <i class="fas fa-edit me-2 text-burgundy"></i>
+          Редактирование товара
+        {% else %}
+          <i class="fas fa-plus me-2 text-burgundy"></i>
+          Добавление товара
+        {% endif %}
+      </h1>
+      <p class="text-muted mb-0">
+        {% if product %}
+          ID: {{ product.id }} | {{ product.name }}
+        {% else %}
+          Создание нового товара
+        {% endif %}
+      </p>
+    </div>
+    <div>
+      <a href="{{ url_for('admin.products') }}" class="btn btn-outline-burgundy">
+        <i class="fas fa-arrow-left me-2"></i>
+        Назад к списку
+      </a>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-12">
+      <div class="card" style="border: 1px solid #e9ecef; border-radius: 12px; box-shadow: 0 2px 8px rgba(128, 0, 32, 0.05);">
+        <div class="card-body">
+          <form method="post" enctype="multipart/form-data" id="productForm">
+            {{ form.csrf_token }}
+            
+            <!-- Основная информация -->
+            <div class="mb-4">
+              <h6 class="text-burgundy mb-3 border-bottom pb-2">
+                <i class="fas fa-info-circle me-2"></i>
+                Основная информация
+              </h6>
+              
+              <div class="row">
+                <div class="col-md-8 mb-3">
+                  {{ form.name.label(class="form-label fw-medium text-dark") }}
+                  {{ form.name(class="form-control", placeholder="Например: Кроссовки Nike Air Max", style="border: 1px solid #e9ecef; border-radius: 8px; padding: 10px;") }}
+                  {% if form.name.errors %}
+                    {% for error in form.name.errors %}
+                      <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                  {% endif %}
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                  {{ form.sku.label(class="form-label fw-medium text-dark") }}
+                  {{ form.sku(class="form-control", placeholder="NIKE-001", style="border: 1px solid #e9ecef; border-radius: 8px; padding: 10px;") }}
+                  {% if form.sku.errors %}
+                    {% for error in form.sku.errors %}
+                      <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                  {% endif %}
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                {{ form.description.label(class="form-label fw-medium text-dark") }}
+                {{ form.description(class="form-control", rows=4, placeholder="Подробное описание товара...", style="border: 1px solid #e9ecef; border-radius: 8px; padding: 10px;") }}
+                {% if form.description.errors %}
+                  {% for error in form.description.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Цена и количество -->
+            <div class="mb-4">
+              <h6 class="text-burgundy mb-3 border-bottom pb-2">
+                <i class="fas fa-tag me-2"></i>
+                Цена и наличие
+              </h6>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  {{ form.price.label(class="form-label fw-medium text-dark") }}
+                  <div class="input-group">
+                    {{ form.price(class="form-control", placeholder="0.00", style="border: 1px solid #e9ecef; border-radius: 8px 0 0 8px; padding: 10px;") }}
+                    <span class="input-group-text" style="background: #FAFAFA; border: 1px solid #e9ecef; border-left: none; border-radius: 0 8px 8px 0;">BYN</span>
+                  </div>
+                  {% if form.price.errors %}
+                    {% for error in form.price.errors %}
+                      <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                  {% endif %}
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                  {{ form.stock.label(class="form-label fw-medium text-dark") }}
+                  {{ form.stock(class="form-control", placeholder="0", style="border: 1px solid #e9ecef; border-radius: 8px; padding: 10px;") }}
+                  {% if form.stock.errors %}
+                    {% for error in form.stock.errors %}
+                      <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            
+            <!-- Категория и бренд -->
+            <div class="mb-4">
+              <h6 class="text-burgundy mb-3 border-bottom pb-2">
+                <i class="fas fa-folder me-2"></i>
+                Классификация
+              </h6>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  {{ form.category_id.label(class="form-label fw-medium text-dark") }}
+                  {{ form.category_id(class="form-select", style="border: 1px solid #e9ecef; border-radius: 8px; padding: 10px;") }}
+                  {% if form.category_id.errors %}
+                    {% for error in form.category_id.errors %}
+                      <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                  {% endif %}
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                  {{ form.brand_id.label(class="form-label fw-medium text-dark") }}
+                  {{ form.brand_id(class="form-select", style="border: 1px solid #e9ecef; border-radius: 8px; padding: 10px;") }}
+                  {% if form.brand_id.errors %}
+                    {% for error in form.brand_id.errors %}
+                      <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            
+            <!-- Атрибуты -->
+            <div class="mb-4">
+              <h6 class="text-burgundy mb-3 border-bottom pb-2">
+                <i class="fas fa-list-alt me-2"></i>
+                Атрибуты
+              </h6>
+              
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  {{ form.color.label(class="form-label fw-medium text-dark") }}
+                  {{ form.color(class="form-control", placeholder="Черный, белый, красный...", style="border: 1px solid #e9ecef; border-radius: 8px; padding: 10px;") }}
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                  {{ form.material.label(class="form-label fw-medium text-dark") }}
+                  {{ form.material(class="form-control", placeholder="Кожа, текстиль, резина...", style="border: 1px solid #e9ecef; border-radius: 8px; padding: 10px;") }}
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                  {{ form.gender.label(class="form-label fw-medium text-dark") }}
+                  {{ form.gender(class="form-select", style="border: 1px solid #e9ecef; border-radius: 8px; padding: 10px;") }}
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                {{ form.sizes.label(class="form-label fw-medium text-dark") }}
+                {{ form.sizes(class="form-control", placeholder="36, 37, 38, 39, 40 (через запятую)", style="border: 1px solid #e9ecef; border-radius: 8px; padding: 10px;") }}
+                <div class="form-text">
+                  <small class="text-muted">Укажите доступные размеры через запятую</small>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Изображения товара -->
+            <!-- Изображения товара -->
+            <div class="mb-4">
+                <h6 class="text-burgundy mb-3 border-bottom pb-2">
+                    <i class="fas fa-images me-2"></i>
+                    Изображения товара
+                </h6>
+                
+                <!-- Загрузка новых изображений - СИЛЬНО УПРОЩЕННО -->
+                <div class="mb-4">
+                    <!-- ЯВНЫЙ LABEL вместо {{ form.images.label }} -->
+                    <label class="form-label fw-medium text-dark mb-3">
+                        Изображения товара
+                    </label>
+                    
+                    <!-- ПРОСТОЕ поле загрузки файлов -->
+                    <div class="mb-3">
+                        <input type="file" 
+                            name="images" 
+                            id="images" 
+                            class="form-control" 
+                            multiple 
+                            accept="image/*"
+                            style="padding: 15px; border: 2px dashed #80002030; border-radius: 10px; background: #FAFAFA;">
+                    </div>
+                    
+                    <div class="form-text">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Поддерживаются JPG, PNG, GIF. Первое изображение будет главным.
+                        </small>
+                    </div>
+                </div>
+                
+                <!-- Удали ВЕСЬ блок с предпросмотром и существующими изображениями на время теста -->
+            </div>
+            
+            <!-- Публикация -->
+            <div class="mb-4">
+              <div class="form-check form-switch">
+                {{ form.is_published(class="form-check-input", style="width: 3rem; height: 1.5rem;") }}
+                {{ form.is_published.label(class="form-check-label fw-medium text-dark ms-2") }}
+              </div>
+            </div>
+            
+            <!-- Кнопки отправки -->
+            <div class="d-grid gap-3">
+              <button type="submit" class="btn py-2" 
+                      style="background: linear-gradient(135deg, #800020 0%, #660033 100%); color: white; border: none; border-radius: 8px;">
+                <i class="fas fa-{% if product %}save{% else %}plus{% endif %} me-2"></i>
+                {% if product %}
+                  Сохранить изменения
+                {% else %}
+                  Добавить товар
+                {% endif %}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.btn-outline-burgundy {
+    border: 1px solid #800020;
+    color: #800020;
+    background: transparent;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.btn-outline-burgundy:hover {
+    background-color: #800020;
+    color: white;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #800020;
+    box-shadow: 0 0 0 0.2rem rgba(128, 0, 32, 0.1);
+}
+
+.file-upload-area:hover {
+    border-color: #800020;
+    background-color: #80002005;
+}
+
+.image-preview-card:hover .image-overlay {
+    opacity: 1;
+}
+
+.border-burgundy {
+    border-color: #800020 !important;
+}
+</style>
+
+<script>
+// ТОЛЬКО САМАЯ ПРОСТАЯ ВАЛИДАЦИЯ
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('productForm');
+    
+    form.addEventListener('submit', function(e) {
+        const name = document.querySelector('input[name="name"]');
+        const price = document.querySelector('input[name="price"]');
+        
+        if (!name.value.trim()) {
+            e.preventDefault();
+            alert('Введите название товара!');
+            name.focus();
+            return false;
+        }
+        
+        if (!price.value || parseFloat(price.value) <= 0) {
+            e.preventDefault();
+            alert('Введите корректную цену (больше 0)!');
+            price.focus();
+            return false;
+        }
+        
+        // Проверяем загрузку файлов
+        const fileInput = document.getElementById('images');
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            if (file.size > 10 * 1024 * 1024) { // 10MB
+                e.preventDefault();
+                alert('Файл слишком большой! Максимум 10MB.');
+                return false;
+            }
+        }
+        
+        return true;
+    });
+});
+</script>
+{% endblock %}

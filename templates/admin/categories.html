@@ -1,0 +1,205 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Категории | Админ-панель{% endblock %}
+{% block page_title %}Управление категориями{% endblock %}
+{% block page_subtitle %}Добавление и редактирование категорий товаров{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card glass-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-folder me-2 text-primary"></i>Список категорий
+                    </h5>
+                    <a href="{{ url_for('admin.create_category') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Новая категория
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if categories %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr class="table-light">
+                                    <th width="60">ID</th>
+                                    <th>Название</th>
+                                    <th>URL</th>
+                                    <th>Описание</th>
+                                    <th width="100" class="text-center">Товаров</th>
+                                    <th width="150">Дата создания</th>
+                                    <th width="120" class="text-center">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cat in categories %}
+                                <tr>
+                                    <td class="text-muted">#{{ cat.id }}</td>
+                                    <td>
+                                        <strong>{{ cat.name }}</strong>
+                                    </td>
+                                    <td>
+                                        <code class="bg-light rounded px-2 py-1">{{ cat.slug }}</code>
+                                    </td>
+                                    <td>
+                                        {% if cat.description %}
+                                            <small class="text-muted">{{ cat.description|truncate(60) }}</small>
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge {% if cat.product_count > 0 %}bg-primary{% else %}bg-secondary{% endif %} rounded-pill">
+                                            {{ cat.product_count }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ cat.created_at }}</small>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('admin.edit_category', category_id=cat.id) }}" 
+                                            class="btn btn-sm btn-outline-primary"
+                                            title="Редактировать">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            
+                                            {% if cat.product_count == 0 %}
+                                            <form action="{{ url_for('admin.delete_category') }}" 
+                                                method="POST" 
+                                                style="display: inline;"
+                                                onsubmit="return confirm('Удалить категорию «{{ cat.name }}»?')">
+                                                <input type="hidden" name="id" value="{{ cat.id }}">
+                                                <button type="submit" 
+                                                        class="btn btn-sm btn-outline-danger"
+                                                        title="Удалить">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                            {% else %}
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-danger disabled"
+                                                    title="Нельзя удалить: есть товары">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-folder-open fa-4x text-muted"></i>
+                        </div>
+                        <h5 class="text-muted mb-3">Категории не найдены</h5>
+                        <p class="text-muted mb-4">Добавьте первую категорию для организации товаров</p>
+                        <a href="{{ url_for('admin.create_category') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus me-2"></i>Создать категорию
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% if categories %}
+                <div class="card-footer bg-light-pink">
+                    <div class="row">
+                        <div class="col">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Всего категорий: {{ categories|length }}
+                            </small>
+                        </div>
+                        <div class="col-auto">
+                            <small class="text-muted">
+                                <i class="fas fa-box me-1"></i>
+                                Всего товаров: {{ categories|sum(attribute='product_count') }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(id, name) {
+    if (confirm('Вы уверены, что хотите удалить категорию "' + name + '"?')) {
+        // Отправляем запрос на удаление
+        fetch('{{ url_for("admin.delete_category") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: id })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Ошибка при удалении');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ошибка соединения');
+        });
+    }
+}
+</script>
+
+<style>
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(128, 0, 32, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(128, 0, 32, 0.08);
+}
+
+.bg-light-pink {
+    background: rgba(255, 182, 193, 0.1) !important;
+}
+
+.table th {
+    font-weight: 600;
+    color: #666;
+    border-bottom: 2px solid rgba(128, 0, 32, 0.1);
+}
+
+.table td {
+    border-color: rgba(128, 0, 32, 0.05);
+}
+
+.btn-outline-primary {
+    color: #800020;
+    border-color: #800020;
+}
+
+.btn-outline-primary:hover {
+    background: #800020;
+    color: white;
+}
+
+.btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-outline-danger:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-outline-danger:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+</style>
+{% endblock %}

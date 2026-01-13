@@ -1,0 +1,3 @@
+name,sku,description,price,stock,category,brand,color,material,gender,sizes,is_published
+Кроссовки Nike Air,NIKE-001,Спортивные кроссовки,8999.99,50,Кроссовки,Nike,Черный,Кожа,Мужские,"40,41,42,43",True
+Туфли кожаные,SHOES-002,Классические туфли,5999.50,30,Туфли,Adidas,Коричневый,Натуральная кожа,Мужские,"39,40,41",True

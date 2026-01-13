@@ -1,0 +1,116 @@
+<!-- templates/admin/brand_form.html -->
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                {% if brand %}Редактирование бренда{% else %}Создание нового бренда{% endif %}
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Главная</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_brands') }}">Бренды</a></li>
+                    <li class="breadcrumb-item active">
+                        {% if brand %}Редактирование{% else %}Создание{% endif %}
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">Основная информация</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <!-- CSRF защита (если используете) -->
+                        {% if csrf_token %}
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        {% endif %}
+                        
+                        <!-- Поле "Название" -->
+                        <div class="mb-3">
+                            <label for="name" class="form-label">
+                                Название бренда <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="name" 
+                                   name="name" 
+                                   value="{{ brand.name if brand else '' }}"
+                                   placeholder="Введите название бренда"
+                                   required>
+                            <div class="form-text">Обязательное поле</div>
+                        </div>
+
+                        <!-- Поле "Описание" -->
+                        <div class="mb-3">
+                            <label for="description" class="form-label">
+                                Описание
+                            </label>
+                            <textarea class="form-control" 
+                                      id="description" 
+                                      name="description" 
+                                      rows="4" 
+                                      placeholder="Описание бренда">{{ brand.description if brand and brand.description else '' }}</textarea>
+                        </div>
+
+                        <!-- Поле "Статус" -->
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       role="switch" 
+                                       id="is_published" 
+                                       name="is_published"
+                                       {% if brand and brand.is_published %}checked{% elif not brand %}checked{% endif %}>
+                                <label class="form-check-label" for="is_published">
+                                    Опубликовать
+                                </label>
+                            </div>
+                            <div class="form-text">Если отключено, бренд будет скрыт от пользователей</div>
+                        </div>
+
+                        <!-- Кнопки -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin.admin_brands') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Отмена
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if brand %}Сохранить изменения{% else %}Создать бренд{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Скрипт для автоматического заполнения slug (опционально) -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const nameInput = document.getElementById('name');
+    const slugInput = document.getElementById('slug');
+    
+    if (nameInput && slugInput) {
+        nameInput.addEventListener('blur', function() {
+            if (!slugInput.value) {
+                // Генерируем slug из названия
+                let slug = nameInput.value
+                    .toLowerCase()
+                    .replace(/[^\w\u0400-\u04FF]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+                slugInput.value = slug;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

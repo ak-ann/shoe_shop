@@ -1,0 +1,231 @@
+<nav aria-label="Page navigation" class="mt-5">
+    <ul class="pagination justify-content-center">
+        <!-- Кнопка "Назад" -->
+        {% if products.has_prev %}
+        <li class="page-item">
+            <a class="page-link lux-pagination-prev" 
+               href="?page={{ products.page - 1 }}{% if search_query %}&q={{ search_query }}{% endif %}{% for cat in selected_categories %}&categories={{ cat }}{% endfor %}{% for brand in selected_brands %}&brands={{ brand }}{% endfor %}{% if selected_status %}&status={{ selected_status }}{% endif %}">
+                <i class="fas fa-chevron-left me-1"></i>Предыдущая
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link lux-pagination-disabled">
+                <i class="fas fa-chevron-left me-1"></i>Предыдущая
+            </span>
+        </li>
+        {% endif %}
+
+        <!-- Страницы -->
+        {% set start_page = products.page - 2 %}
+        {% if start_page < 1 %}
+            {% set start_page = 1 %}
+        {% endif %}
+        
+        {% set end_page = products.page + 2 %}
+        {% if end_page > products.pages %}
+            {% set end_page = products.pages %}
+        {% endif %}
+        
+        {% if start_page > 1 %}
+        <li class="page-item">
+            <a class="page-link lux-pagination-page" href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% for cat in selected_categories %}&categories={{ cat }}{% endfor %}{% for brand in selected_brands %}&brands={{ brand }}{% endfor %}{% if selected_status %}&status={{ selected_status }}{% endif %}">1</a>
+        </li>
+        {% if start_page > 2 %}
+        <li class="page-item disabled">
+            <span class="page-link lux-pagination-dots">...</span>
+        </li>
+        {% endif %}
+        {% endif %}
+        
+        {% for page in range(start_page, end_page + 1) %}
+            {% if page == products.page %}
+            <li class="page-item active" aria-current="page">
+                <span class="page-link lux-pagination-current">
+                    {{ page }}
+                </span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link lux-pagination-page" 
+                   href="?page={{ page }}{% if search_query %}&q={{ search_query }}{% endif %}{% for cat in selected_categories %}&categories={{ cat }}{% endfor %}{% for brand in selected_brands %}&brands={{ brand }}{% endfor %}{% if selected_status %}&status={{ selected_status }}{% endif %}">
+                    {{ page }}
+                </a>
+            </li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if end_page < products.pages %}
+            {% if end_page < products.pages - 1 %}
+            <li class="page-item disabled">
+                <span class="page-link lux-pagination-dots">...</span>
+            </li>
+            {% endif %}
+        <li class="page-item">
+            <a class="page-link lux-pagination-page" 
+               href="?page={{ products.pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% for cat in selected_categories %}&categories={{ cat }}{% endfor %}{% for brand in selected_brands %}&brands={{ brand }}{% endfor %}{% if selected_status %}&status={{ selected_status }}{% endif %}">
+                {{ products.pages }}
+            </a>
+        </li>
+        {% endif %}
+
+        <!-- Кнопка "Вперед" -->
+        {% if products.has_next %}
+        <li class="page-item">
+            <a class="page-link lux-pagination-next" 
+               href="?page={{ products.page + 1 }}{% if search_query %}&q={{ search_query }}{% endif %}{% for cat in selected_categories %}&categories={{ cat }}{% endfor %}{% for brand in selected_brands %}&brands={{ brand }}{% endfor %}{% if selected_status %}&status={{ selected_status }}{% endif %}">
+                Следующая<i class="fas fa-chevron-right ms-1"></i>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link lux-pagination-disabled">
+                Следующая<i class="fas fa-chevron-right ms-1"></i>
+            </span>
+        </li>
+        {% endif %}
+    </ul>
+    
+    <!-- Информация о странице -->
+    <div class="text-center mt-3 text-muted lux-pagination-info">
+        <small>Страница {{ products.page }} из {{ products.pages }}</small>
+        {% if products.total > 0 %}
+        <small class="ms-3">Всего товаров: {{ products.total }}</small>
+        {% endif %}
+    </div>
+</nav>
+
+<style>
+/* Стили для люксовой пагинации */
+.lux-pagination-page {
+    color: #222222 !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid #eaeaea !important;
+    border-radius: 4px !important;
+    padding: 8px 14px !important;
+    margin: 0 4px !important;
+    font-weight: 400 !important;
+    transition: all 0.3s ease !important;
+    min-width: 42px !important;
+    text-align: center !important;
+}
+
+.lux-pagination-page:hover {
+    color: #800020 !important;
+    background-color: #FAFAFA !important;
+    border-color: #800020 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(128, 0, 32, 0.1) !important;
+}
+
+.lux-pagination-current {
+    color: #FFFFFF !important;
+    background: linear-gradient(135deg, #800020, #660033) !important;
+    border: 1px solid #800020 !important;
+    border-radius: 4px !important;
+    padding: 8px 14px !important;
+    margin: 0 4px !important;
+    font-weight: 500 !important;
+    min-width: 42px !important;
+    text-align: center !important;
+    box-shadow: 0 2px 8px rgba(128, 0, 32, 0.2) !important;
+}
+
+.lux-pagination-prev,
+.lux-pagination-next {
+    color: #222222 !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid #eaeaea !important;
+    border-radius: 4px !important;
+    padding: 8px 16px !important;
+    margin: 0 8px !important;
+    font-weight: 400 !important;
+    transition: all 0.3s ease !important;
+}
+
+.lux-pagination-prev:hover {
+    color: #800020 !important;
+    background-color: #FAFAFA !important;
+    border-color: #800020 !important;
+    transform: translateX(-2px) !important;
+    box-shadow: 0 4px 12px rgba(128, 0, 32, 0.1) !important;
+}
+
+.lux-pagination-next:hover {
+    color: #800020 !important;
+    background-color: #FAFAFA !important;
+    border-color: #800020 !important;
+    transform: translateX(2px) !important;
+    box-shadow: 0 4px 12px rgba(128, 0, 32, 0.1) !important;
+}
+
+.lux-pagination-disabled {
+    color: #cccccc !important;
+    background-color: #FAFAFA !important;
+    border: 1px solid #f0f0f0 !important;
+    border-radius: 4px !important;
+    padding: 8px 16px !important;
+    margin: 0 8px !important;
+    font-weight: 400 !important;
+}
+
+.lux-pagination-dots {
+    color: #666666 !important;
+    background-color: transparent !important;
+    border: none !important;
+    padding: 8px 8px !important;
+    margin: 0 2px !important;
+    font-weight: 400 !important;
+}
+
+.lux-pagination-info {
+    color: #666666 !important;
+    font-size: 0.875rem !important;
+    letter-spacing: 0.3px !important;
+}
+
+.page-item.active .lux-pagination-current {
+    color: #FFFFFF !important;
+}
+
+/* Анимация при наведении */
+.page-link {
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.page-link::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 50% !important;
+    width: 0 !important;
+    height: 2px !important;
+    background: linear-gradient(90deg, #800020, #900020) !important;
+    transition: all 0.3s ease !important;
+    transform: translateX(-50%) !important;
+}
+
+.page-link:hover::after {
+    width: 80% !important;
+}
+
+/* Убираем стандартные стили Bootstrap */
+.pagination {
+    --bs-pagination-color: none;
+    --bs-pagination-bg: none;
+    --bs-pagination-border-color: none;
+    --bs-pagination-hover-color: none;
+    --bs-pagination-hover-bg: none;
+    --bs-pagination-hover-border-color: none;
+    --bs-pagination-focus-color: none;
+    --bs-pagination-focus-bg: none;
+    --bs-pagination-focus-box-shadow: none;
+    --bs-pagination-active-color: none;
+    --bs-pagination-active-bg: none;
+    --bs-pagination-active-border-color: none;
+    --bs-pagination-disabled-color: none;
+    --bs-pagination-disabled-bg: none;
+    --bs-pagination-disabled-border-color: none;
+}
+</style>

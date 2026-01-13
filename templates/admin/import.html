@@ -1,0 +1,574 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Импорт данных{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-dark">Импорт данных</h1>
+    
+    <div class="row">
+        <!-- Левая колонка - Форма импорта -->
+        <div class="col-md-6">
+            <div class="card mb-4" style="border: 1px solid #e9ecef; border-radius: 12px; box-shadow: 0 2px 8px rgba(128, 0, 32, 0.05);">
+                <div class="card-header py-3" style="background: white; border-bottom: 1px solid #e9ecef; border-radius: 12px 12px 0 0;">
+                    <h6 class="m-0 font-weight-bold" style="color: #222222;">
+                        <i class="fas fa-upload me-2" style="color: #800020;"></i>
+                        Загрузить CSV файл
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.upload_import') }}" enctype="multipart/form-data" id="importForm">
+                        <!-- Выбор типа данных -->
+                        <div class="form-group mb-4">
+                            <label for="import_type" class="form-label" style="color: #222222; font-weight: 600;">
+                                Тип данных:
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="background: #FAFAFA; border: 1px solid #e9ecef; border-right: none;">
+                                    <i class="fas fa-database" style="color: #800020;"></i>
+                                </span>
+                                <select class="form-control" id="import_type" name="import_type" required 
+                                        style="border: 1px solid #e9ecef; border-left: none; border-radius: 0 8px 8px 0; padding: 10px;">
+                                    <option value="">Выберите тип...</option>
+                                    <option value="users"> Пользователи</option>
+                                    <option value="products"> Товары</option>
+                                    <option value="categories"> Категории</option>
+                                    <option value="brands"> Бренды</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Загрузка файла -->
+                        <div class="form-group mb-4">
+                            <label for="csv_file" class="form-label" style="color: #222222; font-weight: 600;">
+                                CSV файл:
+                            </label>
+                            
+                            <!-- Стильная область загрузки -->
+                            <div class="file-upload-area mb-3" 
+                                 style="border: 2px dashed #e9ecef; border-radius: 8px; padding: 40px; text-align: center; background: #FAFAFA; cursor: pointer; transition: all 0.3s;"
+                                 onclick="document.getElementById('csv_file').click()"
+                                 onmouseover="this.style.borderColor='#800020'; this.style.backgroundColor='#80002005'"
+                                 onmouseout="this.style.borderColor='#e9ecef'; this.style.backgroundColor='#FAFAFA'">
+                                 
+                                <i class="fas fa-cloud-upload-alt mb-3" style="font-size: 3rem; color: #80002020;"></i>
+                                <h6 style="color: #222222; margin-bottom: 8px;">Перетащите файл сюда</h6>
+                                <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">или нажмите для выбора</p>
+                                
+                                <input type="file" class="d-none" id="csv_file" name="csv_file" accept=".csv" required>
+                                
+                                <button type="button" class="btn px-4" 
+                                        style="background: #80002010; border: 1px solid #80002030; color: #800020; border-radius: 8px; padding: 8px 16px;">
+                                    <i class="fas fa-folder-open me-2"></i>
+                                    Выбрать файл
+                                </button>
+                                
+                                <div class="mt-3" id="fileName">
+                                    <small style="color: #666;">Файл не выбран</small>
+                                </div>
+                            </div>
+                            
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Поддерживаются файлы в кодировке UTF-8 с разделителем запятая
+                            </small>
+                        </div>
+                        
+                        <!-- Опции импорта -->
+                        <div class="form-group mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="update_existing" name="update_existing"
+                                       style="width: 1.2em; height: 1.2em; margin-top: 0.2em;">
+                                <label class="form-check-label" for="update_existing" style="color: #222222; font-weight: 500;">
+                                    Обновлять существующие записи
+                                </label>
+                                <div class="text-muted small mt-1">
+                                    Если запись уже существует (по SKU для товаров, email для пользователей), она будет обновлена
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Кнопки действий -->
+                        <div class="d-flex gap-3">
+                            <button type="button" class="btn flex-fill py-2" id="previewBtn"
+                                    style="border: 1px solid #800020; color: #800020; background: white; border-radius: 8px;">
+                                <i class="fas fa-eye me-2"></i>
+                                Предпросмотр
+                            </button>
+                            
+                            <button type="submit" class="btn flex-fill py-2" id="importBtn"
+                                    style="background: linear-gradient(135deg, #800020 0%, #660033 100%); color: white; border: none; border-radius: 8px;">
+                                <i class="fas fa-upload me-2"></i>
+                                Начать импорт
+                            </button>
+                        </div>
+                        
+                        <!-- Сообщение с рекомендацией -->
+                        <div class="mt-4 p-3" style="background: #FAFAFA; border-radius: 8px; border: 1px solid #e9ecef;">
+                            <div class="d-flex">
+                                <div class="me-3">
+                                    <i class="fas fa-lightbulb" style="color: #800020;"></i>
+                                </div>
+                                <div>
+                                    <small style="color: #222222; font-weight: 500;">Рекомендация:</small>
+                                    <p class="mb-0 small text-muted">
+                                        Сначала скачайте шаблон справа, заполните его данными, затем загрузите обратно.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <!-- Область предпросмотра -->
+                    <div id="previewSection" class="mt-4" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 style="color: #222222; margin: 0;">
+                                <i class="fas fa-table me-2" style="color: #800020;"></i>
+                                Предпросмотр данных
+                            </h6>
+                            <button type="button" class="btn btn-sm" id="closePreview"
+                                    style="background: #FAFAFA; border: 1px solid #e9ecef; color: #666;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive" style="max-height: 300px; border: 1px solid #e9ecef; border-radius: 8px;">
+                            <table class="table table-sm mb-0" id="previewTable">
+                                <thead style="background: #FAFAFA; position: sticky; top: 0; z-index: 1;">
+                                    <tr id="previewHeader"></tr>
+                                </thead>
+                                <tbody id="previewBody"></tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-3" id="previewStats"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Правая колонка - Шаблоны -->
+        <div class="col-md-6">
+            <div class="card mb-4" style="border: 1px solid #e9ecef; border-radius: 12px; box-shadow: 0 2px 8px rgba(128, 0, 32, 0.05);">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center" 
+                     style="background: white; border-bottom: 1px solid #e9ecef; border-radius: 12px 12px 0 0;">
+                    <h6 class="m-0 font-weight-bold" style="color: #222222;">
+                        <i class="fas fa-file-download me-2" style="color: #800020;"></i>
+                        Шаблоны для импорта
+                    </h6>
+                    <span class="badge px-3 py-2" style="background: #800020; color: white; border-radius: 20px;">
+                        {{ templates|length }} шаблонов
+                    </span>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">Скачайте шаблон, заполните его данными и загрузите обратно:</p>
+                    
+                    <!-- Список шаблонов -->
+                    <div class="list-group">
+                        {% for key, template in templates.items() %}
+                        <div class="list-group-item mb-3 border-0 p-3" 
+                             style="background: #FAFAFA; border-radius: 8px !important; transition: all 0.3s;"
+                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'"
+                             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-start">
+                                    <!-- Иконка шаблона -->
+                                    <div class="me-3">
+                                        <div class="rounded-circle p-2" style="background: white; border: 1px solid #e9ecef; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                                            {% if key == 'users' %}
+                                            <i class="fas fa-users" style="color: #800020;"></i>
+                                            {% elif key == 'products' %}
+                                            <i class="fas fa-shoe-prints" style="color: #800020;"></i>
+                                            {% elif key == 'categories' %}
+                                            <i class="fas fa-folder" style="color: #800020;"></i>
+                                            {% elif key == 'brands' %}
+                                            <i class="fas fa-tag" style="color: #800020;"></i>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Описание шаблона -->
+                                    <div>
+                                        <h6 class="mb-1" style="color: #222222;">{{ template.description }}</h6>
+                                        <small class="text-muted d-block mb-2">
+                                            <i class="fas fa-columns me-1"></i>
+                                            {{ template.columns|length }} колонок
+                                        </small>
+                                        
+                                        <!-- Колонки -->
+                                        <div class="d-flex flex-wrap gap-1">
+                                            {% for column in template.columns %}
+                                            <span class="badge px-2 py-1" 
+                                                  style="background: white; border: 1px solid #e9ecef; color: #666; font-size: 0.75rem; border-radius: 4px;">
+                                                {{ column }}
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Кнопка скачивания -->
+                                <a href="{{ url_for('admin.download_import_template', template_type=key) }}" 
+                                   class="btn px-3"
+                                   style="background: linear-gradient(135deg, #800020 0%, #660033 100%); color: white; border: none; border-radius: 8px;">
+                                    <i class="fas fa-download me-2"></i>
+                                    Скачать
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Требования к файлам -->
+                    <div class="mt-4 pt-4 border-top">
+                        <h6 style="color: #222222; margin-bottom: 15px;">
+                            <i class="fas fa-clipboard-check me-2" style="color: #800020;"></i>
+                            Требования к CSV файлам
+                        </h6>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-check-circle mt-1 me-2" style="color: #28a745;"></i>
+                                    <div>
+                                        <small class="d-block" style="color: #222222;">Кодировка: UTF-8</small>
+                                        <small class="text-muted">Для корректных символов</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-check-circle mt-1 me-2" style="color: #28a745;"></i>
+                                    <div>
+                                        <small class="d-block" style="color: #222222;">Разделитель: запятая</small>
+                                        <small class="text-muted">Стандартный CSV формат</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-check-circle mt-1 me-2" style="color: #28a745;"></i>
+                                    <div>
+                                        <small class="d-block" style="color: #222222;">Первая строка - заголовки</small>
+                                        <small class="text-muted">Названия колонок</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-check-circle mt-1 me-2" style="color: #28a745;"></i>
+                                    <div>
+                                        <small class="d-block" style="color: #222222;">Формат дат: ГГГГ-ММ-ДД</small>
+                                        <small class="text-muted">Международный стандарт</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Кнопка просмотра ошибок (если есть) -->
+                    {% if session.get('import_errors') %}
+                    <div class="mt-4">
+                        <a href="{{ url_for('admin.view_import_errors') }}" class="btn w-100 py-2"
+                           style="background: #80002010; border: 1px solid #80002030; color: #800020; border-radius: 8px;">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Просмотреть ошибки импорта
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Кастомные стили для интерактивных элементов */
+.btn:hover {
+    transform: translateY(-1px);
+    transition: all 0.3s;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #800020;
+    box-shadow: 0 0 0 0.2rem rgba(128, 0, 32, 0.1);
+}
+
+.table th {
+    background-color: #FAFAFA;
+    font-weight: 600;
+    padding: 8px 12px;
+    color: #222222;
+}
+
+.table td {
+    padding: 8px 12px;
+    color: #444;
+}
+
+.table tr:hover td {
+    background-color: #f8f9fa;
+}
+
+.badge {
+    font-weight: 500;
+}
+</style>
+
+<script>
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    // Элементы DOM
+    const fileInput = document.getElementById('csv_file');
+    const fileName = document.getElementById('fileName');
+    const importTypeSelect = document.getElementById('import_type');
+    const previewBtn = document.getElementById('previewBtn');
+    const importBtn = document.getElementById('importBtn');
+    const previewSection = document.getElementById('previewSection');
+    const closePreviewBtn = document.getElementById('closePreview');
+    
+    // Drag & Drop функционал для области загрузки
+    const dropZone = document.querySelector('.file-upload-area');
+    
+    // Обработчик клика по области загрузки
+    dropZone.addEventListener('click', () => fileInput.click());
+    
+    // Drag & Drop события
+    ['dragover', 'dragenter'].forEach(event => {
+        dropZone.addEventListener(event, (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#800020';
+            dropZone.style.backgroundColor = '#80002005';
+        });
+    });
+    
+    ['dragleave', 'dragend'].forEach(event => {
+        dropZone.addEventListener(event, () => {
+            dropZone.style.borderColor = '#e9ecef';
+            dropZone.style.backgroundColor = '#FAFAFA';
+        });
+    });
+    
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = '#e9ecef';
+        dropZone.style.backgroundColor = '#FAFAFA';
+        
+        if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+            updateFileName();
+        }
+    });
+    
+    // Обновление имени файла при выборе
+    fileInput.addEventListener('change', updateFileName);
+    
+    function updateFileName() {
+        if (fileInput.files.length) {
+            const file = fileInput.files[0];
+            fileName.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-file-csv me-2" style="color: #28a745;"></i>
+                    <div>
+                        <span style="color: #222222; font-weight: 500;">${file.name}</span><br>
+                        <small style="color: #666;">${(file.size / 1024).toFixed(2)} КБ</small>
+                    </div>
+                </div>
+            `;
+        } else {
+            fileName.innerHTML = '<small style="color: #666;">Файл не выбран</small>';
+        }
+    }
+    
+    // Закрытие предпросмотра
+    if (closePreviewBtn) {
+        closePreviewBtn.addEventListener('click', () => {
+            previewSection.style.display = 'none';
+        });
+    }
+    
+    // Предпросмотр CSV файла
+    previewBtn.addEventListener('click', async function() {
+        if (!importTypeSelect.value) {
+            showNotification('Выберите тип импорта', 'warning');
+            return;
+        }
+        
+        if (!fileInput.files.length) {
+            showNotification('Выберите CSV файл', 'warning');
+            return;
+        }
+        
+        const btn = this;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Загрузка...';
+        btn.disabled = true;
+        
+        try {
+            const formData = new FormData();
+            formData.append('csv_file', fileInput.files[0]);
+            
+            const response = await fetch('{{ url_for("admin.preview_import") }}', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Показываем секцию предпросмотра
+                previewSection.style.display = 'block';
+                
+                // Создаем заголовок таблицы
+                const headerRow = result.data[0];
+                const headerHtml = headerRow.map(col => `<th>${col}</th>`).join('');
+                document.getElementById('previewHeader').innerHTML = headerHtml;
+                
+                // Заполняем тело таблицы (первые 10 строк)
+                let bodyHtml = '';
+                const maxRows = Math.min(result.data.length, 11); // 10 строк + заголовок
+                for (let i = 1; i < maxRows; i++) {
+                    const row = result.data[i];
+                    const rowHtml = row.map(cell => `<td>${cell}</td>`).join('');
+                    bodyHtml += `<tr>${rowHtml}</tr>`;
+                }
+                document.getElementById('previewBody').innerHTML = bodyHtml;
+                
+                // Показываем статистику
+                const moreRows = result.row_count > 10 ? ` и ещё ${result.row_count - 10}` : '';
+                document.getElementById('previewStats').innerHTML = `
+                    <div class="p-3" style="background: #d4edda; border-radius: 8px; border: 1px solid #c3e6cb;">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle me-3" style="color: #155724; font-size: 1.2rem;"></i>
+                            <div>
+                                <div style="color: #155724; font-weight: 500;">Файл успешно загружен</div>
+                                <div style="color: #155724; font-size: 0.9rem;">
+                                    Найдено <strong>${result.row_count}</strong> записей${moreRows}, 
+                                    <strong>${result.column_count}</strong> колонок
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Прокручиваем к предпросмотру
+                previewSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                showNotification('Ошибка: ' + result.message, 'danger');
+            }
+        } catch (error) {
+            showNotification('Ошибка загрузки: ' + error.message, 'danger');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    });
+    
+    // Валидация формы импорта
+    document.getElementById('importForm').addEventListener('submit', function(e) {
+        if (!importTypeSelect.value) {
+            e.preventDefault();
+            showNotification('Выберите тип импорта', 'warning');
+            importTypeSelect.focus();
+            return false;
+        }
+        
+        if (!fileInput.files.length) {
+            e.preventDefault();
+            showNotification('Выберите CSV файл', 'warning');
+            return false;
+        }
+        
+        if (!confirm('Начать импорт данных? Это может занять некоторое время.')) {
+            e.preventDefault();
+            return false;
+        }
+        
+        // Показываем индикатор загрузки
+        importBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Импорт...';
+        importBtn.disabled = true;
+        previewBtn.disabled = true;
+    });
+    
+    // Функция показа уведомлений
+    function showNotification(message, type) {
+        const colors = {
+            'success': { bg: '#d4edda', border: '#c3e6cb', text: '#155724', icon: 'check-circle' },
+            'danger': { bg: '#f8d7da', border: '#f5c6cb', text: '#721c24', icon: 'exclamation-triangle' },
+            'warning': { bg: '#fff3cd', border: '#ffeaa7', text: '#856404', icon: 'exclamation-circle' },
+            'info': { bg: '#d1ecf1', border: '#bee5eb', text: '#0c5460', icon: 'info-circle' }
+        };
+        
+        const color = colors[type] || colors.info;
+        
+        // Удаляем старые уведомления
+        const oldAlerts = document.querySelectorAll('.custom-alert');
+        oldAlerts.forEach(alert => alert.remove());
+        
+        const alert = document.createElement('div');
+        alert.className = 'custom-alert';
+        alert.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid ${color.border};
+            background: ${color.bg};
+            color: ${color.text};
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease;
+        `;
+        
+        alert.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas fa-${color.icon} me-3" style="font-size: 1.2rem;"></i>
+                <div style="flex: 1;">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close-notification" style="background: none; border: none; color: ${color.text}; margin-left: 10px; cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(alert);
+        
+        // Кнопка закрытия
+        const closeBtn = alert.querySelector('.btn-close-notification');
+        closeBtn.addEventListener('click', () => {
+            alert.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => alert.remove(), 300);
+        });
+        
+        // Автоматическое скрытие через 5 секунд
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => alert.remove(), 300);
+            }
+        }, 5000);
+        
+        // CSS анимации
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+});
+</script>
+{% endblock %}

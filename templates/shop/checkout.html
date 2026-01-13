@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оформление заказа | Luxury Shoes</title>
+    <style>
+        /* Ваша цветовая палитра */
+        :root {
+            --primary-bg: #FFFFFF;
+            --secondary-bg: #FAFAFA;
+            --text-primary: #222222;
+            --accent-primary: #800020;
+            --accent-secondary: #660033;
+            --accent-dark: #900020;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--accent-primary);
+            text-decoration: none;
+        }
+        
+        .checkout-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .checkout-form {
+            background: var(--primary-bg);
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid #eee;
+        }
+        
+        .checkout-summary {
+            background: var(--secondary-bg);
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #eee;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--accent-primary);
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent-secondary);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(128, 0, 32, 0.1);
+        }
+        
+        .required::after {
+            content: " *";
+            color: var(--accent-primary);
+        }
+        
+        .order-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 15px;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 12px;
+        }
+        
+        .item-details {
+            flex: 1;
+        }
+        
+        .item-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .item-price {
+            color: var(--accent-primary);
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .summary-row.total {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--accent-primary);
+            border-bottom: 2px solid var(--accent-secondary);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .payment-method {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .payment-method:hover {
+            border-color: var(--accent-primary);
+        }
+        
+        .payment-method.active {
+            border-color: var(--accent-primary);
+            background-color: rgba(128, 0, 32, 0.05);
+        }
+        
+        .payment-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--accent-dark);
+        }
+        
+        .btn-primary:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            border-top: 1px solid #eee;
+            margin-top: 50px;
+            color: #666;
+            background: var(--secondary-bg);
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--accent-primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <a href="/" class="logo">LUXURY SHOES</a>
+            <div>Оформление заказа</div>
+        </header>
+        
+        <!-- Уведомления -->
+        <div id="alertSuccess" class="alert alert-success" style="display: none;"></div>
+        <div id="alertError" class="alert alert-error" style="display: none;"></div>
+        
+        <!-- Индикатор загрузки -->
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Оформляем ваш заказ...</p>
+        </div>
+        
+        <div class="checkout-container">
+            <!-- Левая колонка: Форма заказа -->
+            <div class="checkout-form">
+                <form id="checkoutForm">
+                    <div class="form-section">
+                        <h2 class="section-title">Контактная информация</h2>
+                        <div class="form-group">
+                            <label for="fullName" class="required">Полное имя</label>
+                            <input type="text" id="fullName" name="fullName" required 
+                                placeholder="Иванов Иван Иванович"
+                                value="{% if current_user.is_authenticated %}{% if current_user.first_name or current_user.last_name %}{{ current_user.first_name or '' }} {{ current_user.last_name or '' }}{% else %}{{ current_user.username or '' }}{% endif %}{% endif %}" 
+                                autocomplete="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="required">Email</label>
+                            <input type="email" id="email" name="email" required 
+                                placeholder="example@mail.com"
+                                value="{{ current_user.email if current_user.is_authenticated else '' }}" 
+                                autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone" class="required">Телефон</label>
+                            <input type="tel" id="phone" name="phone" required 
+                                placeholder="+7 (999) 999-99-99"
+                                value="{{ current_user.phone if (current_user.is_authenticated and current_user.phone) else '' }}" 
+                                autocomplete="tel">
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h2 class="section-title">Адрес доставки</h2>
+                        <div class="form-group">
+                            <label for="address" class="required">Адрес</label>
+                            <input type="text" id="address" name="address" required 
+                                placeholder="Город, улица, дом, квартира"
+                                value="{{ current_user.address if (current_user.is_authenticated and current_user.address) else '' }}" 
+                                autocomplete="street-address">
+                        </div>
+                        <div class="form-group">
+                            <label for="comment">Комментарий к доставке</label>
+                            <textarea id="comment" name="comment" rows="3" 
+                                    placeholder="Дополнительная информация для курьера (номер подъезда, код домофона и т.д.)"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h2 class="section-title">Способ оплаты</h2>
+                        <div class="payment-methods">
+                            <div class="payment-method active" data-method="card">
+                                <div class="payment-icon">💳</div>
+                                <div>Банковская карта</div>
+                            </div>
+                            <div class="payment-method" data-method="cash">
+                                <div class="payment-icon">💰</div>
+                                <div>Наличными при получении</div>
+                            </div>
+                            <div class="payment-method" data-method="online">
+                                <div class="payment-icon">🌐</div>
+                                <div>Онлайн перевод</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="paymentMethod" name="paymentMethod" value="card">
+                    </div>
+                    
+                    <div class="form-section">
+                        <h2 class="section-title">Согласие</h2>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: flex-start; cursor: pointer;">
+                                <input type="checkbox" id="agreeTerms" name="agreeTerms" required style="margin-right: 10px; margin-top: 3px;">
+                                <span>Я согласен с условиями <a href="/terms" target="_blank">обработки персональных данных</a> и <a href="/policy" target="_blank">политикой конфиденциальности</a></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary" id="placeOrderBtn">
+                        ОФОРМИТЬ ЗАКАЗ
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Правая колонка: Сводка заказа -->
+            <div class="checkout-summary">
+                <h2 class="section-title">Ваш заказ</h2>
+                
+                <div class="order-items" id="orderItems">
+                    <!-- Товары будут добавлены через JavaScript -->
+                </div>
+                
+                <div class="summary-details" id="summaryDetails">
+                    <div class="summary-row">
+                        <span>Товары (<span id="itemsCount">0</span>)</span>
+                        <span id="itemsTotal">0 ₽</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Доставка</span>
+                        <span id="deliveryCost">Бесплатно</span>
+                    </div>
+                    <div class="summary-row" id="discountRow" style="display: none;">
+                        <span>Скидка</span>
+                        <span id="discountAmount">0 ₽</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Итого</span>
+                        <span id="totalAmount">0 ₽</span>
+                    </div>
+                </div>
+                
+                <p style="text-align: center; margin-top: 15px; font-size: 14px; color: #666; line-height: 1.4;">
+                    Нажимая кнопку "Оформить заказ", вы подтверждаете согласие с условиями обработки персональных данных
+                </p>
+            </div>
+        </div>
+        
+        <footer class="footer">
+            <p>© {{ current_year }} Luxury Shoes. Все права защищены.</p>
+            <a href="/cart" class="back-link">← Вернуться в корзину</a>
+        </footer>
+    </div>
+
+    <script>
+    // Данные корзины
+    let cartItems = [];
+
+    // Функция для загрузки корзины
+    async function loadCart() {
+        try {
+            console.log("=== DEBUG: Loading cart for checkout page");
+            
+            // Используем данные, которые уже загружены в шаблоне
+            // Мы передаем cart_items и total из Python в шаблон
+            {% if cart_items and total %}
+            console.log("=== DEBUG: Found cart data in template:", {{ cart_items|length }}, "items");
+            
+            // Преобразуем данные Python в формат для JavaScript
+            cartItems = [
+                {% for item in cart_items %}
+                {
+                    cart_item_id: {{ item.cart_item_id }},
+                    product_id: {{ item.product_id }},
+                    name: "{{ item.product_name.replace('"', '\\"') if item.product_name else 'Товар' }}",
+                    size: "{{ item.size if item.size else '' }}",
+                    quantity: {{ item.quantity }},
+                    price: {{ item.price }},
+                    image_url: "{{ item.product_image if item.product_image else '' }}"
+                }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ];
+            
+            console.log("=== DEBUG: Cart items loaded:", cartItems);
+            updateOrderSummary();
+            
+            {% else %}
+            console.log("=== DEBUG: No cart data in template");
+            // Если данных нет, показываем сообщение
+            document.getElementById('orderItems').innerHTML = 
+                '<p style="text-align: center; color: #666; padding: 20px;">Не удалось загрузить данные корзины.</p>';
+            document.getElementById('placeOrderBtn').disabled = true;
+            showError('Не удалось загрузить данные корзины. Пожалуйста, вернитесь в корзину и попробуйте снова.');
+            {% endif %}
+            
+        } catch (error) {
+            console.error('Ошибка при загрузке корзины:', error);
+            showError('Ошибка при загрузке корзины. Пожалуйста, обновите страницу.');
+        }
+    }
+
+    // Функция для обновления сводки заказа
+    function updateOrderSummary() {
+        const orderItemsContainer = document.getElementById('orderItems');
+        const itemsCountElement = document.getElementById('itemsCount');
+        const itemsTotalElement = document.getElementById('itemsTotal');
+        const totalAmountElement = document.getElementById('totalAmount');
+        
+        // Очищаем контейнер
+        orderItemsContainer.innerHTML = '';
+        
+        if (cartItems.length === 0) {
+            itemsCountElement.textContent = '0';
+            itemsTotalElement.textContent = '0 ₽';
+            totalAmountElement.textContent = '0 ₽';
+            document.getElementById('placeOrderBtn').disabled = true;
+            return;
+        }
+        
+        let totalItems = 0;
+        let totalPrice = 0;
+        
+        // Добавляем товары
+        cartItems.forEach(item => {
+            totalItems += item.quantity || 1;
+            const price = item.price || 0;
+            const quantity = item.quantity || 1;
+            const subtotal = price * quantity;
+            totalPrice += subtotal;
+            
+            const itemElement = document.createElement('div');
+            itemElement.className = 'order-item';
+            itemElement.innerHTML = `
+                <div class="item-image">
+                    ${item.image_url ? 
+                        `<img src="${item.image_url}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">` : 
+                        '👞'}
+                </div>
+                <div class="item-details">
+                    <div class="item-name">${item.name || 'Товар'}</div>
+                    <div>Размер: ${item.size || '-'}</div>
+                    <div>Кол-во: ${quantity} шт.</div>
+                    <div class="item-price">${subtotal.toLocaleString('ru-RU')} ₽</div>
+                </div>
+            `;
+            orderItemsContainer.appendChild(itemElement);
+        });
+        
+        // Обновляем итоги
+        itemsCountElement.textContent = totalItems;
+        itemsTotalElement.textContent = totalPrice.toLocaleString('ru-RU') + ' ₽';
+        totalAmountElement.textContent = totalPrice.toLocaleString('ru-RU') + ' ₽';
+        
+        // Активируем кнопку оформления
+        document.getElementById('placeOrderBtn').disabled = false;
+    }
+
+    // Функция для показа сообщения об ошибке
+    function showError(message) {
+        const alert = document.getElementById('alertError');
+        alert.textContent = message;
+        alert.style.display = 'block';
+        setTimeout(() => {
+            alert.style.display = 'none';
+        }, 5000);
+    }
+
+    // Функция для показа сообщения об успехе
+    function showSuccess(message) {
+        const alert = document.getElementById('alertSuccess');
+        alert.textContent = message;
+        alert.style.display = 'block';
+    }
+
+    // Функция для показа/скрытия индикатора загрузки
+    function showLoading(show) {
+        document.getElementById('loading').style.display = show ? 'block' : 'none';
+    }
+
+    // Обработка выбора способа оплаты
+    document.querySelectorAll('.payment-method').forEach(method => {
+        method.addEventListener('click', function() {
+            document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('paymentMethod').value = this.dataset.method;
+        });
+    });
+
+    // Обработка отправки формы
+    document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Проверяем, есть ли товары в корзине
+        if (cartItems.length === 0) {
+            showError('Добавьте товары в корзину перед оформлением заказа');
+            return;
+        }
+        
+        // Проверяем согласие с условиями
+        if (!document.getElementById('agreeTerms').checked) {
+            showError('Необходимо согласие с условиями обработки персональных данных');
+            return;
+        }
+        
+        // Валидация формы
+        const requiredFields = ['fullName', 'email', 'phone', 'address'];
+        for (const fieldId of requiredFields) {
+            const field = document.getElementById(fieldId);
+            if (!field.value.trim()) {
+                showError(`Пожалуйста, заполните поле "${field.previousElementSibling.textContent.replace(' *', '')}"`);
+                field.focus();
+                return;
+            }
+        }
+        
+        // Проверка email
+        const email = document.getElementById('email').value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showError('Пожалуйста, введите корректный email адрес');
+            document.getElementById('email').focus();
+            return;
+        }
+        
+        // Показываем индикатор загрузки
+        showLoading(true);
+        const btn = document.getElementById('placeOrderBtn');
+        const originalText = btn.textContent;
+        btn.textContent = 'ОФОРМЛЯЕМ...';
+        btn.disabled = true;
+        
+        // Собираем данные формы
+        const formData = {
+            fullName: document.getElementById('fullName').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            address: document.getElementById('address').value,
+            comment: document.getElementById('comment').value,
+            paymentMethod: document.getElementById('paymentMethod').value,
+            items: cartItems.map(item => ({
+                product_id: item.product_id,
+                product_name: item.name,
+                size: item.size,
+                quantity: item.quantity,
+                price: item.price
+            }))
+        };
+        
+        try {
+            // Отправляем данные на сервер
+            const response = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Показываем успешное сообщение
+                showSuccess(`Заказ №${data.order_number} успешно оформлен! Сумма: ${data.total_amount} ₽`);
+                
+                // Очищаем корзину
+                cartItems = [];
+                updateOrderSummary();
+                
+                // Редирект на страницу успеха через 2 секунды
+                setTimeout(() => {
+                    window.location.href = `/order-success/${data.order_number}`;
+                }, 2000);
+            } else {
+                showError('Ошибка при оформлении заказа: ' + data.message);
+                btn.textContent = originalText;
+                btn.disabled = false;
+                showLoading(false);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showError('Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте еще раз.');
+            btn.textContent = originalText;
+            btn.disabled = false;
+            showLoading(false);
+        }
+    });
+
+    // Загрузка корзины при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCart();
+        
+        // Заполняем форму данными из URL (если есть)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('fullName')) {
+            document.getElementById('fullName').value = urlParams.get('fullName') || '';
+            document.getElementById('email').value = urlParams.get('email') || '';
+            document.getElementById('phone').value = urlParams.get('phone') || '';
+            document.getElementById('address').value = urlParams.get('address') || '';
+            
+            const paymentMethod = urlParams.get('paymentMethod') || 'card';
+            document.getElementById('paymentMethod').value = paymentMethod;
+            
+            // Устанавливаем активный способ оплаты
+            document.querySelectorAll('.payment-method').forEach(method => {
+                if (method.dataset.method === paymentMethod) {
+                    method.classList.add('active');
+                } else {
+                    method.classList.remove('active');
+                }
+            });
+            
+            // Убираем параметры из URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        
+        // Автозаполнение номера телефона
+        const phoneInput = document.getElementById('phone');
+        phoneInput.addEventListener('input', function(e) {
+            let value = this.value.replace(/\D/g, '');
+            if (value.startsWith('8')) {
+                value = '7' + value.substring(1);
+            }
+            
+            let formattedValue = '';
+            if (value.length > 0) {
+                formattedValue = '+';
+                if (value.length <= 1) formattedValue += value;
+                else if (value.length <= 4) formattedValue += value.substring(0, 1) + ' (' + value.substring(1);
+                else if (value.length <= 7) formattedValue += value.substring(0, 1) + ' (' + value.substring(1, 4) + ') ' + value.substring(4);
+                else if (value.length <= 9) formattedValue += value.substring(0, 1) + ' (' + value.substring(1, 4) + ') ' + value.substring(4, 7) + '-' + value.substring(7);
+                else formattedValue += value.substring(0, 1) + ' (' + value.substring(1, 4) + ') ' + value.substring(4, 7) + '-' + value.substring(7, 9) + '-' + value.substring(9, 11);
+            }
+            this.value = formattedValue;
+        });
+        
+        // Автоматическая проверка заполнения полей
+        const formInputs = document.querySelectorAll('#checkoutForm input, #checkoutForm textarea');
+        formInputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value.trim() === '') {
+                    this.style.borderColor = '#ff6b6b';
+                } else {
+                    this.style.borderColor = '#ddd';
+                }
+            });
+        });
+    });
+
+    // Кнопка "Назад" в корзину
+    document.addEventListener('DOMContentLoaded', function() {
+        const backLink = document.querySelector('.back-link');
+        if (backLink) {
+            backLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Вы уверены? Все введенные данные будут потеряны.')) {
+                    window.location.href = '/cart';
+                }
+            });
+        }
+    });
+    </script>
+</body>
+</html>

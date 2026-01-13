@@ -1,0 +1,80 @@
+{% if current_user.is_authenticated %}
+    <h5 class="mb-4">Оставить отзыв</h5>
+    <form method="post" action="{{ url_for('shop.add_review_route', product_id=product.id) }}">
+        {{ form.csrf_token }}
+        
+        <div class="mb-3">
+            {{ form.text.label(class="form-label") }}
+            {{ form.text(class="form-control", rows=4, placeholder="Напишите свой отзыв...") }}
+            {% if form.text.errors %}
+                {% for error in form.text.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="mb-3">
+            {{ form.rating.label(class="form-label") }}
+            {{ form.rating(class="form-control", type="number", min="1", max="5") }}
+            {% if form.rating.errors %}
+                {% for error in form.rating.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Отправить</button>
+    </form>
+{% endif %}
+<br>
+
+{% for review in reviews %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="card-title mb-0">
+                    <a href="{{ url_for('users.profile', username=review.author.username) }}" 
+                       name="comment_{{ review.id }}">
+                        @{{ review.author.username }}
+                    </a>
+                </h6>
+                <small class="text-muted">{{ review.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+            </div>
+
+            <!-- Рейтинг для отзывов -->
+            {% if review.rating %}
+                <div class="mb-2">
+                    {% for i in range(review.rating) %}
+                        <span class="text-warning">★</span>
+                    {% endfor %}
+                    <span class="text-muted">({{ review.rating }}/5)</span>
+                </div>
+            {% endif %}
+
+            <p class="card-text">{{ review.text|replace('\n', '<br>')|safe }}</p>
+
+            {% if current_user.is_authenticated and current_user.id == review.author_id %}
+                <div class="mt-2">
+                    <a class="btn btn-sm btn-outline-primary" 
+                       href="{{ url_for('shop.edit_review_route', product_id=product.id, review_id=review.id) }}" 
+                       role="button">
+                        Редактировать
+                    </a>
+                    <form method="post" 
+                          action="{{ url_for('shop.delete_review_route', product_id=product.id, review_id=review.id) }}" 
+                          class="d-inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                onclick="return confirm('Вы уверены, что хотите удалить этот отзыв?')">
+                            Удалить
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        Пока нет отзывов. Будьте первым!
+    </div>
+{% endfor %}

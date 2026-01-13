@@ -1,0 +1,465 @@
+<!-- templates/admin/users.html -->
+{% extends "admin/base.html" %}
+
+{% block title %}Управление пользователями | Админ-панель{% endblock %}
+
+{% block page_title %}<i class="fas fa-users me-2"></i>Пользователи{% endblock %}
+{% block page_subtitle %}Управление учетными записями и правами доступа{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- Статистика сверху -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Всего пользователей</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ users|length }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Администраторов</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ users|selectattr('is_admin')|list|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-crown fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Обычных пользователей</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ users|rejectattr('is_admin')|list|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Новых за неделю</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">2</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-plus fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основная таблица -->
+    <div class="card glass-card shadow-lg mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-list me-2"></i>Список пользователей
+            </h6>
+            <div class="d-flex">
+                <div class="input-group input-group-sm me-2" style="width: 250px;">
+                    <span class="input-group-text bg-pink-light border-0">
+                        <i class="fas fa-search text-primary"></i>
+                    </span>
+                    <input type="text" class="form-control border-0" id="searchInput" placeholder="Поиск пользователей...">
+                </div>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                    <i class="fas fa-plus me-1"></i>Добавить
+                </button>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="usersTable">
+                    <thead class="bg-pink-light">
+                        <tr>
+                            <th class="text-primary">ID</th>
+                            <th class="text-primary">Пользователь</th>
+                            <th class="text-primary">Контакт</th>
+                            <th class="text-primary">Дата регистрации</th>
+                            <th class="text-primary">Роль</th>
+                            <th class="text-primary">Активность</th>
+                            <th class="text-primary">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr class="user-row animate-fadeIn" data-delay="{{ loop.index * 0.05 }}s">
+                            <td class="fw-bold">#{{ user.id }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="user-avatar-sm me-3">
+                                        {{ user.username[0].upper() if user.username else 'U' }}
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 text-dark">{{ user.username or 'Без имени' }}</h6>
+                                        <small class="text-muted">
+                                            {% if user.first_name or user.last_name %}
+                                                {{ user.first_name or '' }} {{ user.last_name or '' }}
+                                            {% else %}
+                                                <span class="text-muted">Имя не указано</span>
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <a href="mailto:{{ user.email }}" class="text-decoration-none text-primary">
+                                        <i class="fas fa-envelope me-1"></i>{{ user.email }}
+                                    </a>
+                                    {% if user.phone %}
+                                    <small class="text-muted mt-1">
+                                        <i class="fas fa-phone me-1"></i>{{ user.phone }}
+                                    </small>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span class="text-dark">{{ user.created_at }}</span>
+                                    <small class="text-muted">Заказов: {{ user.order_count or 0 }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                {% if user.is_admin %}
+                                <span class="badge badge-admin">
+                                    <i class="fas fa-crown me-1"></i>Администратор
+                                </span>
+                                {% else %}
+                                <span class="badge badge-user">
+                                    <i class="fas fa-user me-1"></i>Пользователь
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar bg-success" style="width: {{ [75, 90, 60, 45, 80, 95]|random }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ [75, 90, 60, 45, 80, 95]|random }}% активность</small>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" 
+                                       class="btn btn-outline-primary btn-sm action-btn"
+                                       data-bs-toggle="tooltip" 
+                                       title="Редактировать"
+                                       {% if user.id == current_user.id %}disabled{% endif %}>
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    
+                                    <button class="btn btn-outline-info btn-sm action-btn"
+                                            data-bs-toggle="tooltip"
+                                            title="Посмотреть профиль">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    
+                                    <form method="POST" 
+                                          action="{{ url_for('admin.delete_user', user_id=user.id) }}"
+                                          class="d-inline"
+                                          onsubmit="return confirmDelete('Вы уверены, что хотите удалить пользователя «{{ user.username }}»?');">
+                                        <button type="submit" 
+                                                class="btn btn-outline-danger btn-sm action-btn"
+                                                data-bs-toggle="tooltip"
+                                                title="Удалить"
+                                                {% if user.id == current_user.id %}disabled{% endif %}>
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <div class="empty-state">
+                                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">Пользователи не найдены</h5>
+                                    <p class="text-muted mb-4">В системе еще нет зарегистрированных пользователей</p>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                                        <i class="fas fa-plus me-2"></i>Добавить первого пользователя
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        {% if users %}
+        <div class="card-footer bg-pink-light border-0">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted">
+                    Показано <span class="fw-bold">{{ users|length }}</span> из <span class="fw-bold">{{ users|length }}</span> пользователей
+                </div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link text-primary border-0" href="#">Назад</a>
+                        </li>
+                        <li class="page-item active">
+                            <a class="page-link bg-primary border-0" href="#">1</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link text-primary border-0" href="#">2</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link text-primary border-0" href="#">3</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link text-primary border-0" href="#">Вперед</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Модальное окно добавления пользователя -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>Добавить нового пользователя
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Функция добавления пользователей находится в разработке. Пользователи могут регистрироваться самостоятельно через сайт.
+                </div>
+                <p class="text-muted">
+                    Для добавления пользователя через админ-панель необходимо реализовать соответствующую форму.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-primary" disabled>
+                    <i class="fas fa-save me-2"></i>Сохранить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Стили для страницы пользователей */
+    .stat-card {
+        border-radius: 12px;
+        border-left: 4px solid !important;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(128, 0, 32, 0.15) !important;
+    }
+    
+    .border-left-primary { border-color: #800020 !important; }
+    .border-left-success { border-color: #28a745 !important; }
+    .border-left-warning { border-color: #ffc107 !important; }
+    .border-left-info { border-color: #17a2b8 !important; }
+    
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(128, 0, 32, 0.1);
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(128, 0, 32, 0.08);
+        overflow: hidden;
+    }
+    
+    .user-avatar-sm {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #800020 0%, #FFB6C1 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+    
+    .badge-admin {
+        background: linear-gradient(135deg, #800020 0%, #a02040 100%);
+        color: white;
+        padding: 0.35rem 0.75rem;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+    
+    .badge-user {
+        background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%);
+        color: white;
+        padding: 0.35rem 0.75rem;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+    
+    .action-btn {
+        border-radius: 8px;
+        padding: 0.35rem 0.5rem;
+        transition: all 0.2s;
+        border: 1px solid rgba(128, 0, 32, 0.2);
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(128, 0, 32, 0.15);
+    }
+    
+    .bg-pink-light {
+        background: rgba(255, 182, 193, 0.15) !important;
+    }
+    
+    .text-primary {
+        color: #800020 !important;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #800020 0%, #FFB6C1 100%);
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(128, 0, 32, 0.3);
+    }
+    
+    .btn-outline-primary {
+        color: #800020;
+        border-color: #800020;
+    }
+    
+    .btn-outline-primary:hover {
+        background: #800020;
+        border-color: #800020;
+    }
+    
+    .empty-state {
+        padding: 3rem 1rem;
+        text-align: center;
+    }
+    
+    .user-row {
+        transition: all 0.3s;
+    }
+    
+    .user-row:hover {
+        background: rgba(255, 182, 193, 0.05);
+        transform: scale(1.002);
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fadeIn {
+        animation: fadeIn 0.5s ease-out forwards;
+        opacity: 0;
+    }
+    
+    .page-link {
+        background: transparent;
+        color: #800020;
+    }
+    
+    .page-link:hover {
+        background: rgba(128, 0, 32, 0.1);
+        color: #800020;
+    }
+    
+    .page-item.active .page-link {
+        background: #800020;
+        border-color: #800020;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Поиск пользователей
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function() {
+                const searchText = this.value.toLowerCase();
+                const rows = document.querySelectorAll('#usersTable tbody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchText) ? '' : 'none';
+                });
+            });
+        }
+        
+        // Анимация задержки
+        const animateElements = document.querySelectorAll('[data-delay]');
+        animateElements.forEach(el => {
+            const delay = el.dataset.delay;
+            el.style.animationDelay = delay;
+        });
+        
+        // Инициализация тултипов
+        const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        tooltips.forEach(tooltip => {
+            new bootstrap.Tooltip(tooltip);
+        });
+        
+        // Функция подтверждения удаления
+        window.confirmDelete = function(message) {
+            return confirm(message || 'Вы уверены, что хотите выполнить это действие?');
+        }
+    });
+</script>
+{% endblock %}

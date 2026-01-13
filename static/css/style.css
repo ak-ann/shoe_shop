@@ -1,0 +1,86 @@
+/* Основные стили */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Навигация */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+/* Карточки товаров */
+.product-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: none;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,.1) !important;
+}
+
+.category-badge {
+    font-size: 0.8em;
+    margin-right: 5px;
+}
+
+/* Формы */
+.form-control:focus, .form-select:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Кнопки */
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+/* Адаптивность изображений */
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Анимации */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Звезды рейтинга */
+.text-warning {
+    color: #ffc107 !important;
+}
+
+/* Всплывающие сообщения */
+.alert {
+    border: none;
+    border-radius: 10px;
+}
+
+/* Кастомные стили для пагинации */
+.page-link {
+    color: #667eea;
+    border: 1px solid #dee2e6;
+}
+
+.page-item.active .page-link {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+/* Стили для категорий и тегов */
+.badge {
+    font-weight: 500;
+    padding: 6px 12px;
+}

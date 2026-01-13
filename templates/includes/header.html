@@ -1,0 +1,533 @@
+
+<nav class="navbar navbar-expand-lg navbar-light premium-navbar">
+    <div class="container-fluid px-4">
+        <!-- Логотип с премиальным оформлением -->
+        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('shop.index') }}">
+            <div class="logo-wrapper me-3">
+                <div class="logo-icon">
+                    <i class="fas fa-crown"></i>
+                </div>
+            </div>
+            <div class="brand-text">
+                <span class="brand-name">Élégance</span>
+                <span class="brand-subtitle">Shoes Boutique</span>
+            </div>
+        </a>
+        
+        <!-- Кнопка мобильного меню -->
+        <button class="navbar-toggler premium-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <!-- Основное меню -->
+        <div class="collapse navbar-collapse" id="mainNav">
+            <!-- Центральное меню -->
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item mx-2">
+                    <a class="nav-link nav-item-premium" href="/">
+                        <span class="nav-icon"><i class="fas fa-home"></i></span>
+                        <span class="nav-text">Главная</span>
+                    </a>
+                </li>
+                <li class="nav-item mx-2">
+                    <a class="nav-link nav-item-premium" href="{{ url_for('shop.categories') }}">
+                        <span class="nav-icon"><i class="fas fa-layer-group"></i></span>
+                        <span class="nav-text">Коллекции</span>
+                    </a>
+                </li>
+                <li class="nav-item mx-2">
+                    <a class="nav-link nav-item-premium" href="{{ url_for('shop.brands') }}">
+                        <span class="nav-icon"><i class="fas fa-star"></i></span>
+                        <span class="nav-text">Бренды</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <!-- Правая часть меню -->
+            <div class="navbar-actions d-flex align-items-center">
+                <!-- Поиск -->
+                <div class="search-wrapper me-4">
+                    <form action="{{ url_for('shop.search') if 'shop.search' in view_functions else '#' }}" method="GET">
+                        <div class="input-group premium-search">
+                            <span class="input-group-text search-icon">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="search" class="form-control search-input" 
+                                   placeholder="Поиск по коллекции..." name="q">
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Корзина - УВЕЛИЧЕНА ИКОНКА И ДОБАВЛЕНА ПОДСВЕТКА -->
+                <div class="cart-wrapper me-4 position-relative">
+                    <a href="{{ url_for('shop.cart_route') }}" class="nav-link cart-link" title="Корзина" style="font-size: 1.4rem;">
+                        <i class="fas fa-shopping-bag" style="color: #800020;"></i>
+                        {% if current_user.is_authenticated %}
+                            {% set cart_count_value = get_cart_count() %}
+                            {% if cart_count_value and cart_count_value > 0 %}
+                                <span class="cart-count premium-badge">{{ cart_count_value }}</span>
+                            {% endif %}
+                        {% else %}
+                            {% if session.get('cart') %}
+                                {% set session_cart_count = session.cart.values()|sum %}
+                                {% if session_cart_count > 0 %}
+                                    <span class="cart-count premium-badge" style="top: -8px; right: -8px; width: 24px; height: 24px; font-size: 0.8rem;">
+                                        {{ session_cart_count }}
+                                    </span>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                </div>
+                
+                <!-- Профиль пользователя -->
+                <div class="user-profile">
+                    {% if current_user.is_authenticated %}
+                        <div class="dropdown">
+                            <a class="user-dropdown d-flex align-items-center" href="#" 
+                            role="button" id="userMenu" data-bs-toggle="dropdown">
+                                <div class="user-avatar premium-avatar">
+                                    {% if current_user.avatar %}
+                                        <img src="{{ current_user.avatar }}" alt="{{ current_user.username }}">
+                                    {% else %}
+                                        <i class="fas fa-user"></i>
+                                    {% endif %}
+                                </div>
+                                <span class="user-name ms-2">{{ current_user.username }}</span>
+                                <i class="fas fa-chevron-down ms-2 dropdown-arrow"></i>
+                            </a>
+                            
+                            <ul class="dropdown-menu dropdown-menu-end premium-dropdown">
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('users.profile', username=current_user.username) }}">
+                                        <i class="fas fa-user-circle me-3"></i>
+                                        <span>Мой профиль</span>
+                                    </a>
+                                </li>
+                                
+                                <!-- DEBUG: Проверка is_admin -->
+                                <!-- {{ current_user.username }}: is_admin = {{ current_user.is_admin }}, type = {{ current_user.is_admin.__class__.__name__ }} -->
+                                
+                                <!-- АДМИН-ПАНЕЛЬ -->
+                                {% if current_user.is_admin %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="{{ url_for('admin.dashboard') }}">
+                                            <i class="fas fa-cog me-3"></i>
+                                            <span>Админ-панель</span>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item logout-item" href="{{ url_for('users.logout') }}">
+                                        <i class="fas fa-sign-out-alt me-3"></i>
+                                        <span>Выйти</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <div class="auth-buttons d-flex gap-2">
+                            <a href="{{ url_for('users.login') }}" class="btn btn-outline-premium">
+                                Войти
+                            </a>
+                            <a href="{{ url_for('users.register') }}" class="btn btn-premium">
+                                Регистрация
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* Премиальный навбар */
+.premium-navbar {
+    background: #FFFFFF;
+    padding: 1rem 0;
+    box-shadow: 0 2px 20px rgba(128, 0, 32, 0.05);
+    border-bottom: 1px solid rgba(128, 0, 32, 0.1);
+}
+
+/* Логотип */
+.logo-wrapper {
+    position: relative;
+}
+
+.logo-icon {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #EFBF04;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 12px rgba(128, 0, 32, 0.15);
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #222222;
+    letter-spacing: 0.5px;
+}
+
+.brand-subtitle {
+    font-size: 0.75rem;
+    color: #800020;
+    letter-spacing: 1.5px;
+    font-weight: 300;
+    text-transform: uppercase;
+}
+
+/* Элементы меню */
+.nav-item-premium {
+    color: #222222 !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-item-premium:hover {
+    background: rgba(128, 0, 32, 0.05);
+    color: #800020 !important;
+}
+
+.nav-item-premium::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: #800020;
+    transition: width 0.3s ease;
+}
+
+.nav-item-premium:hover::after {
+    width: 70%;
+}
+
+.nav-icon {
+    margin-right: 8px;
+    color: #800020;
+    font-size: 0.9rem;
+}
+
+/* Поиск */
+.premium-search {
+    border: 1px solid rgba(128, 0, 32, 0.2);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.premium-search:focus-within {
+    border-color: #800020;
+    box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.1);
+}
+
+.search-icon {
+    background: transparent;
+    border: none;
+    color: #800020;
+    padding: 0.75rem 1rem;
+}
+
+.search-input {
+    border: none;
+    background: transparent;
+    padding: 0.75rem 0.5rem;
+    color: #222222;
+    min-width: 250px;
+}
+
+.search-input::placeholder {
+    color: rgba(128, 0, 32, 0.5);
+}
+
+/* Корзина - УЛУЧШЕННЫЕ СТИЛИ */
+.cart-link {
+    color: #800020 !important; /* Яркий цвет для видимости */
+    font-size: 1.4rem; /* Увеличенный размер */
+    position: relative;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    background: rgba(128, 0, 32, 0.05);
+    border-radius: 10px;
+    min-width: 50px;
+    justify-content: center;
+}
+
+.cart-link:hover {
+    color: #800020 !important;
+    background: rgba(128, 0, 32, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(128, 0, 32, 0.15);
+}
+
+.cart-link i {
+    transition: transform 0.3s ease;
+}
+
+.cart-link:hover i {
+    transform: scale(1.1);
+}
+
+.premium-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #800020;
+    color: white;
+    font-size: 0.8rem;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(128, 0, 32, 0.3);
+}
+
+/* Профиль пользователя */
+.user-dropdown {
+    color: #222222;
+    text-decoration: none;
+    padding: 0.5rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.user-dropdown:hover {
+    background: rgba(128, 0, 32, 0.05);
+    color: #800020;
+}
+
+.premium-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+    overflow: hidden;
+}
+
+.premium-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-name {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.dropdown-arrow {
+    font-size: 0.8rem;
+    color: #800020;
+}
+
+/* Выпадающее меню */
+.premium-dropdown {
+    background: #FFFFFF;
+    border: 1px solid rgba(128, 0, 32, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(128, 0, 32, 0.1);
+    padding: 0.5rem;
+    min-width: 220px;
+    margin-top: 10px;
+}
+
+.premium-dropdown .dropdown-item {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    color: #222222;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    margin: 2px 0;
+}
+
+.premium-dropdown .dropdown-item:hover {
+    background: rgba(128, 0, 32, 0.05);
+    color: #800020;
+}
+
+.premium-dropdown .dropdown-item i {
+    color: #800020;
+    width: 20px;
+    text-align: center;
+}
+
+.premium-dropdown .dropdown-item.text-danger i {
+    color: #dc3545 !important;
+}
+
+.premium-dropdown .dropdown-item.text-danger:hover {
+    color: #dc3545 !important;
+    background: rgba(220, 53, 69, 0.05);
+}
+
+.logout-item i {
+    color: #999 !important;
+}
+
+/* Кнопки авторизации */
+.btn-premium {
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-premium:hover {
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(128, 0, 32, 0.2);
+}
+
+.btn-outline-premium {
+    background: transparent;
+    color: #800020;
+    border: 1px solid #800020;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-premium:hover {
+    background: rgba(128, 0, 32, 0.05);
+    color: #800020;
+}
+
+/* Анимация для корзины */
+@keyframes cartBounce {
+    0% { transform: translateY(0) scale(1); }
+    25% { transform: translateY(-5px) scale(1.1); }
+    50% { transform: translateY(0) scale(1); }
+    75% { transform: translateY(-2px) scale(1.05); }
+    100% { transform: translateY(0) scale(1); }
+}
+
+.cart-link.added i {
+    animation: cartBounce 0.6s ease;
+}
+
+/* Адаптивность */
+@media (max-width: 991px) {
+    .navbar-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(128, 0, 32, 0.1);
+    }
+    
+    .search-wrapper {
+        margin: 0;
+        width: 100%;
+    }
+    
+    .search-input {
+        min-width: 100%;
+    }
+    
+    .cart-wrapper {
+        position: static;
+        width: 100%;
+    }
+    
+    .cart-link {
+        justify-content: center;
+        padding: 0.75rem;
+        background: rgba(128, 0, 32, 0.05);
+        border-radius: 10px;
+        font-size: 1.5rem;
+    }
+    
+    .premium-toggler {
+        border: none;
+        padding: 0;
+    }
+    
+    .premium-toggler .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23800020' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+    
+    .premium-badge {
+        top: -5px;
+        right: -5px;
+        width: 22px;
+        height: 22px;
+        font-size: 0.75rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Анимация для иконки корзины
+    const cartIcon = document.querySelector('.cart-link i');
+    
+    if (cartIcon) {
+        // Добавляем класс при добавлении товара
+        document.addEventListener('cartAdded', function() {
+            cartIcon.classList.add('added');
+            setTimeout(() => cartIcon.classList.remove('added'), 600);
+        });
+        
+        // Эффект при наведении
+        cartIcon.addEventListener('mouseenter', function() {
+            this.style.transition = 'all 0.3s ease';
+        });
+    }
+    
+    // Показываем/скрываем бейдж корзины
+    function updateCartBadge() {
+        const badge = document.querySelector('.cart-count');
+        if (badge) {
+            const count = parseInt(badge.textContent) || 0;
+            if (count > 0) {
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    }
+    
+    // Проверяем при загрузке
+    updateCartBadge();
+});
+</script>

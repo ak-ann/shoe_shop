@@ -1,0 +1,532 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Экспорт данных{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Заголовок -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-dark">Экспорт данных</h1>
+            <p class="text-muted mb-0">Создание архивов и отчетов в формате CSV/ZIP</p>
+        </div>
+        <div class="d-flex align-items-center">
+            <span class="badge bg-burgundy text-white px-3 py-2 me-3">
+                <i class="fas fa-file-export me-1"></i>
+                {{ export_files|length }} файлов
+            </span>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Левая колонка - Создание экспорта -->
+        <div class="col-lg-6">
+            <div class="card card-elegant mb-4">
+                <div class="card-header bg-white border-bottom-0 py-4">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box bg-burgundy-light text-burgundy rounded-circle p-3 me-3">
+                            <i class="fas fa-file-export fa-lg"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1 text-dark">Создать новый экспорт</h5>
+                            <p class="text-muted mb-0">Выберите тип данных для экспорта</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('admin.generate_export') }}" id="exportForm" class="needs-validation" novalidate>
+                        <!-- Выбор типа данных -->
+                        <div class="form-group mb-4">
+                            <label for="export_type" class="form-label text-dark fw-semibold mb-2">
+                                <i class="fas fa-database me-2 text-burgundy"></i>
+                                Тип данных
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="fas fa-filter text-burgundy"></i>
+                                </span>
+                                <select class="form-select border-start-0 ps-1" id="export_type" name="export_type" required>
+                                    <option value="" disabled selected>Выберите тип данных...</option>
+                                    {% for option in export_options %}
+                                    <option value="{{ option.id }}" data-description="{{ option.description }}">
+                                        {{ option.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-text text-muted small mt-1" id="exportDescription"></div>
+                        </div>
+                        
+                        <!-- Диапазон дат (скрыт по умолчанию) -->
+                        <div id="dateRange" class="mb-4" style="display: none;">
+                            <label class="form-label text-dark fw-semibold mb-3">
+                                <i class="fas fa-calendar-alt me-2 text-burgundy"></i>
+                                Период экспорта
+                            </label>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="start_date" class="small text-muted mb-1">Дата начала</label>
+                                        <input type="date" class="form-control date-input" id="start_date" name="start_date">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="end_date" class="small text-muted mb-1">Дата окончания</label>
+                                        <input type="date" class="form-control date-input" id="end_date" name="end_date">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Имя файла -->
+                        <div class="form-group mb-4">
+                            <label for="custom_name" class="form-label text-dark fw-semibold mb-2">
+                                <i class="fas fa-file-signature me-2 text-burgundy"></i>
+                                Настройка имени файла
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="fas fa-tag text-burgundy"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0 ps-1" id="custom_name" name="custom_name" 
+                                       placeholder="users_backup_2024">
+                            </div>
+                            <div class="form-text text-muted small mt-1">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Если оставить пустым, имя будет сгенерировано автоматически
+                            </div>
+                        </div>
+                        
+                        <!-- Кнопки действий -->
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-burgundy flex-fill d-flex align-items-center justify-content-center py-3" id="exportBtn">
+                                <i class="fas fa-download me-2"></i>
+                                <span>Создать экспорт</span>
+                            </button>
+                            
+                            <button type="button" class="btn btn-burgundy-light flex-fill d-flex align-items-center justify-content-center py-3" id="quickExportBtn">
+                                <i class="fas fa-bolt me-2"></i>
+                                <span>Быстрый экспорт</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Информационное сообщение -->
+                        <div class="alert alert-light border mt-4">
+                            <div class="d-flex">
+                                <div class="me-3">
+                                    <i class="fas fa-shield-alt text-burgundy fa-lg"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-dark mb-1">Безопасность данных</h6>
+                                    <p class="small text-muted mb-0">
+                                        Все экспортируемые данные защищены и доступны только администраторам.
+                                        Файлы автоматически удаляются через 7 дней.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Правая колонка - История экспортов -->
+        <div class="col-lg-6">
+            <div class="card card-elegant mb-4">
+                <div class="card-header bg-white border-bottom-0 py-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box bg-burgundy-light text-burgundy rounded-circle p-3 me-3">
+                                <i class="fas fa-history fa-lg"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1 text-dark">История экспортов</h5>
+                                <p class="text-muted mb-0">Ранее созданные файлы</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    {% if export_files %}
+                    <div class="list-group list-group-flush">
+                        {% for file in export_files %}
+                        <div class="list-group-item border-0 px-0 py-3 {% if not loop.last %}border-bottom{% endif %}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <!-- Иконка и информация о файле -->
+                                <div class="d-flex align-items-start">
+                                    <div class="me-3">
+                                        <div class="file-icon bg-{{ 'warning' if file.type == 'zip' else 'info' }}-subtle rounded-circle p-3">
+                                            <i class="fas fa-file-{{ 'archive' if file.type == 'zip' else 'csv' }} text-{{ 'warning' if file.type == 'zip' else 'info' }} fa-lg"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 text-dark">{{ file.name }}</h6>
+                                        <div class="d-flex align-items-center text-muted small">
+                                            <span class="me-3">
+                                                <i class="far fa-clock me-1"></i>
+                                                {{ file.created.strftime('%d.%m.%Y %H:%M') }}
+                                            </span>
+                                            <span>
+                                                <i class="fas fa-weight-hanging me-1"></i>
+                                                {{ (file.size / 1024)|round(2) }} КБ
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Действия с файлом -->
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('admin.download_export', filename=file.name) }}" 
+                                       class="btn btn-sm btn-outline-burgundy d-flex align-items-center" 
+                                       title="Скачать"
+                                       data-bs-toggle="tooltip">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-danger d-flex align-items-center"
+                                            title="Удалить"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#deleteModal{{ loop.index }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Модальное окно подтверждения удаления -->
+                                <div class="modal fade" id="deleteModal{{ loop.index }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header border-0 pb-0">
+                                                <h5 class="modal-title text-dark">Подтверждение удаления</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body py-4">
+                                                <div class="text-center mb-4">
+                                                    <div class="icon-box bg-danger-subtle text-danger rounded-circle p-4 d-inline-block">
+                                                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                                                    </div>
+                                                </div>
+                                                <p class="text-center mb-0">
+                                                    Вы уверены, что хотите удалить файл <strong>{{ file.name }}</strong>?
+                                                    Это действие нельзя отменить.
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer border-0 pt-0">
+                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Отмена</button>
+                                                <form method="POST" action="{{ url_for('admin.delete_export', filename=file.name) }}" class="d-inline">
+                                                    <button type="submit" class="btn btn-danger">Удалить</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Статистика -->
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="stat-box">
+                                    <h4 class="text-burgundy mb-0">{{ export_files|length }}</h4>
+                                    <small class="text-muted">Всего файлов</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-box">
+                                    <h4 class="text-burgundy mb-0">{{ (export_files|sum(attribute='size') / 1048576)|round(2) }}</h4>
+                                    <small class="text-muted">МБ всего</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-box">
+                                    <h4 class="text-burgundy mb-0">{{ export_files|selectattr('type', 'equalto', 'zip')|list|length }}</h4>
+                                    <small class="text-muted">Архивов ZIP</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% else %}
+                    <!-- Состояние "нет данных" -->
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-folder-open fa-4x text-light"></i>
+                        </div>
+                        <h5 class="text-dark mb-2">Нет созданных экспортов</h5>
+                        <p class="text-muted mb-4">
+                            Создайте свой первый экспорт данных
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Кастомные стили для экспорта */
+.card-elegant {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(128, 0, 32, 0.05);
+    transition: all 0.3s ease;
+}
+
+.card-elegant:hover {
+    box-shadow: 0 4px 16px rgba(128, 0, 32, 0.1);
+}
+
+.btn-burgundy {
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+    border: none;
+    color: white;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-burgundy:hover {
+    background: linear-gradient(135deg, #660033 0%, #900020 100%);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(128, 0, 32, 0.2);
+}
+
+.btn-burgundy-light {
+    background: #80002010;
+    border: 1px solid #80002030;
+    color: #800020;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-burgundy-light:hover {
+    background: #80002020;
+    border-color: #800020;
+    color: #800020;
+}
+
+.btn-outline-burgundy {
+    border-color: #800020;
+    color: #800020;
+}
+
+.btn-outline-burgundy:hover {
+    background-color: #800020;
+    color: white;
+}
+
+.icon-box {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-box {
+    padding: 1rem;
+}
+
+.stat-box h4 {
+    font-weight: 700;
+}
+
+.form-control, .form-select {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #800020;
+    box-shadow: 0 0 0 0.2rem rgba(128, 0, 32, 0.1);
+}
+
+.input-group-text {
+    border-radius: 8px 0 0 8px;
+    border: 1px solid #e9ecef;
+    background-color: #fafafa;
+}
+
+.date-input {
+    position: relative;
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+    background: transparent;
+    bottom: 0;
+    color: transparent;
+    cursor: pointer;
+    height: auto;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+}
+
+.list-group-item:hover {
+    background-color: #fafafa;
+}
+
+.badge.bg-burgundy {
+    background-color: #800020 !important;
+}
+
+.bg-burgundy-light {
+    background-color: #80002010 !important;
+}
+
+.text-burgundy {
+    color: #800020 !important;
+}
+
+.alert-light {
+    background-color: #fafafa;
+    border-color: #e9ecef;
+}
+</style>
+
+<script>
+// Инициализация тултипов
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+    
+    // Показ описания при выборе типа экспорта
+    const exportTypeSelect = document.getElementById('export_type');
+    const exportDescription = document.getElementById('exportDescription');
+    const dateRange = document.getElementById('dateRange');
+    
+    // Заполняем описание
+    exportTypeSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const description = selectedOption.getAttribute('data-description') || '';
+        exportDescription.textContent = description;
+        
+        // Показываем/скрываем диапазон дат
+        if (this.value === 'orders') {
+            dateRange.style.display = 'block';
+            setTimeout(() => {
+                dateRange.style.opacity = '1';
+                dateRange.style.transform = 'translateY(0)';
+            }, 10);
+        } else {
+            dateRange.style.opacity = '0';
+            dateRange.style.transform = 'translateY(-10px)';
+            setTimeout(() => {
+                dateRange.style.display = 'none';
+            }, 300);
+        }
+    });
+    
+    // Анимация появления диапазона дат
+    dateRange.style.transition = 'all 0.3s ease';
+    dateRange.style.opacity = '0';
+    dateRange.style.transform = 'translateY(-10px)';
+    
+    // Быстрый экспорт через AJAX
+    document.getElementById('quickExportBtn').addEventListener('click', async function() {
+        const exportType = exportTypeSelect.value;
+        
+        if (!exportType) {
+            showNotification('Выберите тип экспорта', 'warning');
+            return;
+        }
+        
+        const btn = this;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Создание...';
+        btn.disabled = true;
+        
+        try {
+            const response = await fetch('{{ url_for("admin.quick_export") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ type: exportType })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showNotification(result.message + ' <a href="' + result.download_url + '" class="text-white fw-bold">Скачать</a>', 'success');
+                
+                // Обновляем страницу через 2 секунды
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } else {
+                showNotification('Ошибка: ' + result.message, 'danger');
+            }
+        } catch (error) {
+            showNotification('Ошибка соединения: ' + error.message, 'danger');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    });
+    
+    // Функция показа уведомлений
+    function showNotification(message, type) {
+        const alertClass = {
+            'success': 'alert-success',
+            'danger': 'alert-danger',
+            'warning': 'alert-warning',
+            'info': 'alert-info'
+        }[type] || 'alert-info';
+        
+        const alert = document.createElement('div');
+        alert.className = `alert ${alertClass} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+        alert.style.zIndex = '9999';
+        alert.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(alert);
+        
+        // Автоматическое скрытие через 5 секунд
+        setTimeout(() => {
+            alert.classList.remove('show');
+            setTimeout(() => alert.remove(), 150);
+        }, 5000);
+    }
+    
+    // Валидация формы
+    document.getElementById('exportForm').addEventListener('submit', function(e) {
+        if (!exportTypeSelect.value) {
+            e.preventDefault();
+            showNotification('Выберите тип данных для экспорта', 'warning');
+            exportTypeSelect.focus();
+            return false;
+        }
+        
+        // Показываем индикатор загрузки
+        const exportBtn = document.getElementById('exportBtn');
+        exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Обработка...';
+        exportBtn.disabled = true;
+    });
+});
+</script>
+{% endblock %}

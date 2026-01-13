@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="{{ url_for('static', filename='img/fav/favicon.ico') }}" type="image">
+    <title>{% block title %}ShoesStore{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Общие стили для корзины -->
+    <style>
+    .cart-badge {
+        transition: all 0.3s ease;
+    }
+    .cart-badge.updated {
+        animation: cartPulse 0.5s ease;
+    }
+    @keyframes cartPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% include "includes/header.html" %}
+    
+    <main>
+        <div class="container py-4">
+            <!-- Flash сообщения -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    {% include "includes/footer.html" %}
+    
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+    
+    <!-- ТОЛЬКО глобальные утилиты для обновления счетчика -->
+    <script>
+    // Минимальные глобальные функции для обновления счетчика корзины
+    window.CartManager = {
+        // Обновить счетчик корзины (вызывается из карточки товара)
+        updateCounter: function(count) {
+            document.querySelectorAll('.cart-counter, .cart-count, #cart-count').forEach(counter => {
+                const oldCount = parseInt(counter.textContent) || 0;
+                const newCount = parseInt(count) || 0;
+                
+                counter.textContent = newCount;
+                
+                // Анимация если количество изменилось
+                if (newCount !== oldCount) {
+                    counter.classList.add('updated');
+                    setTimeout(() => counter.classList.remove('updated'), 500);
+                }
+                
+                // Показываем/скрываем бейдж
+                if (counter.classList.contains('badge') || counter.classList.contains('cart-badge')) {
+                    counter.style.display = newCount > 0 ? 'inline-block' : 'none';
+                }
+            });
+        },
+        
+        // Загрузить начальное количество корзины
+        loadInitialCount: async function() {
+            try {
+                const response = await fetch('/shop/api/cart-status');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        this.updateCounter(data.cart_count);
+                    }
+                }
+            } catch (error) {
+                console.log('Не удалось загрузить количество товаров');
+            }
+        }
+    };
+    
+    // Загружаем количество при старте
+    document.addEventListener('DOMContentLoaded', function() {
+        CartManager.loadInitialCount();
+    });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+    <script>
+// Простой глобальный обработчик корзины
+document.addEventListener('DOMContentLoaded', function() {
+    // Отслеживаем, какая кнопка сейчас активна
+    let activeButton = null;
+    let isProcessing = false;
+    
+    // Обработчик для ВСЕХ форм добавления в корзину
+    document.addEventListener('submit', async function(e) {
+        const form = e.target;
+        
+        // Проверяем, что это форма добавления в корзину
+        if (form.action && form.action.includes('/cart/add/')) {
+            e.preventDefault();
+            
+            // Проверяем, не обрабатывается ли уже запрос
+            if (isProcessing) {
+                console.log('Уже идет добавление, подождите...');
+                return;
+            }
+            
+            isProcessing = true;
+            
+            // Находим кнопку отправки
+            const button = form.querySelector('button[type="submit"]');
+            if (button) {
+                activeButton = button;
+                const originalText = button.innerHTML;
+                
+                // Показываем загрузку
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Добавляем...';
+                
+                try {
+                    // Отправляем запрос
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: new FormData(form)
+                    });
+                    
+                    // Получаем JSON ответ
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // 1. Обновляем счетчик в шапке
+                        updateCartCounter(data.cart_count);
+                        
+                        // 2. Меняем кнопку на "Добавлено"
+                        button.innerHTML = '<i class="fas fa-check me-2"></i>Добавлено!';
+                        button.classList.add('btn-success');
+                        
+                        // 3. Показываем всплывающее уведомление
+                        showCartNotification(data.message || 'Товар добавлен в корзину', 'success');
+                        
+                        // 4. Через 2 секунды возвращаем кнопку
+                        setTimeout(() => {
+                            button.disabled = false;
+                            button.innerHTML = originalText;
+                            button.classList.remove('btn-success');
+                            activeButton = null;
+                            isProcessing = false;
+                        }, 2000);
+                        
+                    } else {
+                        // Ошибка
+                        showCartNotification(data.message || 'Ошибка', 'error');
+                        button.disabled = false;
+                        button.innerHTML = originalText;
+                        isProcessing = false;
+                    }
+                    
+                } catch (error) {
+                    console.error('Ошибка:', error);
+                    showCartNotification('Ошибка соединения', 'error');
+                    if (button) {
+                        button.disabled = false;
+                        button.innerHTML = originalText;
+                    }
+                    isProcessing = false;
+                }
+            }
+        }
+    });
+    
+    // Функция обновления счетчика корзины
+    function updateCartCounter(count) {
+        // Ищем все элементы счетчика на странице
+        const counters = [
+            ...document.querySelectorAll('.cart-count'),
+            ...document.querySelectorAll('.cart-counter'),
+            ...document.querySelectorAll('#cart-count'),
+            ...document.querySelectorAll('[data-cart-count]')
+        ];
+        
+        counters.forEach(counter => {
+            const oldCount = parseInt(counter.textContent) || 0;
+            const newCount = parseInt(count) || 0;
+            
+            // Обновляем текст
+            counter.textContent = newCount;
+            
+            // Анимация при увеличении
+            if (newCount > oldCount) {
+                counter.classList.add('pulse');
+                setTimeout(() => counter.classList.remove('pulse'), 500);
+            }
+        });
+    }
+    
+    // Функция показа уведомления
+    function showCartNotification(message, type = 'success') {
+        // Создаем элемент уведомления
+        const notification = document.createElement('div');
+        notification.className = `cart-notification cart-notification-${type}`;
+        notification.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
+                <span>${message}</span>
+                <button class="ms-auto btn-close" onclick="this.parentElement.parentElement.remove()"></button>
+            </div>
+        `;
+        
+        // Стили для уведомления
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#d4edda' : '#f8d7da'};
+            color: ${type === 'success' ? '#155724' : '#721c24'};
+            border: 1px solid ${type === 'success' ? '#c3e6cb' : '#f5c6cb'};
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 9999;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            animation: slideInRight 0.3s ease;
+        `;
+        
+        // Добавляем на страницу
+        document.body.appendChild(notification);
+        
+        // Автоматически скрываем через 3 секунды
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }, 3000);
+    }
+    
+    // Добавляем CSS анимации
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        .pulse {
+            animation: pulse 0.5s ease;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .btn-success {
+            background-color: #28a745 !important;
+            border-color: #28a745 !important;
+        }
+        
+        .cart-notification-success {
+            background: #d4edda !important;
+            color: #155724 !important;
+            border-color: #c3e6cb !important;
+        }
+        
+        .cart-notification-error {
+            background: #f8d7da !important;
+            color: #721c24 !important;
+            border-color: #f5c6cb !important;
+        }
+    `;
+    document.head.appendChild(style);
+});
+</script>
+</body>
+</html>

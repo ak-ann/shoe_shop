@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Админ-панель | ShoeStore{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-bg: #FFFFFF;
+            --secondary-bg: #FAFAFA;
+            --primary-text: #222222;
+            --primary-accent: #800020;
+            --secondary-accent: #660033;
+            --dark-burgundy: #900020;
+            --light-pink: rgba(255, 182, 193, 0.15);
+            --border-color: #e8e8e8;
+            --sidebar-width: 280px;
+            --navbar-height: 70px;
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--primary-text);
+            line-height: 1.6;
+        }
+
+        /* Лейаут */
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Сайдбар */
+        .admin-sidebar {
+            width: var(--sidebar-width);
+            background: var(--primary-bg);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            padding: 2rem 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+        }
+
+        .sidebar-brand {
+            padding: 0 1.5rem 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--primary-text);
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--primary-accent) 0%, var(--secondary-accent) 100%);
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .brand-text h2 {
+            font-size: 1.3rem;
+            margin: 0;
+            font-weight: 700;
+            color: var(--primary-text);
+        }
+
+        .sidebar-nav {
+            padding: 0 1rem;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-left: 0.5rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.9rem 1rem;
+            color: var(--primary-text);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background-color: var(--light-pink);
+            color: var(--primary-accent);
+        }
+
+        .nav-link.active {
+            background-color: var(--light-pink);
+            color: var(--primary-accent);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Основной контент */
+        .admin-main {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding-top: var(--navbar-height);
+            min-height: 100vh;
+        }
+
+        /* Навбар */
+        .admin-navbar {
+            height: var(--navbar-height);
+            background: var(--primary-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 2rem;
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-width);
+            right: 0;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .page-title h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .user-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-accent) 0%, var(--secondary-accent) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Контент */
+        .admin-content {
+            padding: 2rem;
+        }
+
+        /* Карточки */
+        .content-card {
+            background: var(--primary-bg);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--secondary-bg);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Таблицы */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background-color: var(--secondary-bg);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Кнопки */
+        .btn-primary {
+            background-color: var(--primary-accent);
+            border-color: var(--primary-accent);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-accent);
+            border-color: var(--secondary-accent);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-accent);
+            border-color: var(--primary-accent);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-accent);
+            color: white;
+        }
+
+        /* Бэджи */
+        .badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-primary {
+            background-color: var(--light-pink);
+            color: var(--primary-accent);
+        }
+
+        .badge-success {
+            background-color: rgba(40, 167, 69, 0.15);
+            color: #28a745;
+        }
+
+        .badge-warning {
+            background-color: rgba(255, 193, 7, 0.15);
+            color: #856404;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+            
+            .admin-sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .admin-main {
+                margin-left: 0;
+            }
+            
+            .admin-navbar {
+                left: 0;
+            }
+            
+            .admin-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Боковая панель -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-brand">
+                <a href="{{ url_for('admin.users') }}" class="brand-logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="brand-text">
+                        <h2>ShoeStore</h2>
+                        <small>Админ-панель</small>
+                    </div>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-title">Управление</div>
+                    <div class="nav-item">
+                        <a href="{{ url_for('admin.users') }}" class="nav-link {% if request.endpoint == 'admin.users' %}active{% endif %}">
+                            <div class="nav-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <span>Пользователи</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-title">Каталог</div>
+                    <div class="nav-item">
+                        <a href="{{ url_for('admin.admin_categories') }}" class="nav-link {% if request.endpoint == 'admin.admin_categories' %}active{% endif %}">
+                            <div class="nav-icon">
+                                <i class="fas fa-folder"></i>
+                            </div>
+                            <span>Категории</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{{ url_for('admin.admin_brands') }}" class="nav-link {% if request.endpoint == 'admin.admin_brands' %}active{% endif %}">
+                            <div class="nav-icon">
+                                <i class="fas fa-tag"></i>
+                            </div>
+                            <span>Бренды</span>
+                        </a>
+                    </div>
+                </div>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.export_data') }}">
+                        <i class="fas fa-file-export"></i>
+                        <span>Экспорт данных</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admin.import_data') }}">
+                    <i class="fas fa-file-import"></i>
+                    <span>Импорт данных</span>
+                </a>
+            </li>
+
+                <div class="nav-section">
+                    <div class="nav-title">Система</div>
+                    <div class="nav-item">
+                        <a href="/" class="nav-link">
+                            <div class="nav-icon">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <span>На сайт</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{{ url_for('users.logout') }}" class="nav-link">
+                            <div class="nav-icon">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </div>
+                            <span>Выйти</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Основной контент -->
+        <main class="admin-main">
+            <!-- Навбар -->
+            <nav class="admin-navbar">
+                <div>
+                    <div class="page-title">
+                        <h1>{% block page_title %}Админ-панель{% endblock %}</h1>
+                    </div>
+                </div>
+
+                <div>
+                    <button class="user-btn">
+                        <div class="user-avatar">
+                            {{ current_user.username[0].upper() if current_user.is_authenticated else 'A' }}
+                        </div>
+                        <div>
+                            <strong>{{ current_user.username if current_user.is_authenticated else 'Администратор' }}</strong>
+                            <small class="d-block text-muted">Администратор</small>
+                        </div>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Сообщения -->
+            <div class="admin-content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show mb-4" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Основной контент страницы -->
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Скрипты -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Переключение сайдбара на мобильных
+        if (window.innerWidth <= 768) {
+            document.querySelector('.admin-sidebar').classList.add('active');
+        }
+    </script>
+</body>
+</html>

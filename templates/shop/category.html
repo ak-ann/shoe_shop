@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ category.title }} — ShoesStore{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="text-center mb-5">
+    <h1>{{ category.title }}</h1>
+    {% if category.description %}
+      <p class="text-muted lead">{{ category.description }}</p>
+    {% endif %}
+  </div>
+  
+  {% if products.items %}
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      {% for product in products.items %}
+        <div class="col">
+          {% include "includes/product_card.html" %}
+        </div>
+      {% endfor %}
+    </div>
+    
+    <!-- Пагинация -->
+    {% if products.pages > 1 %}
+      {% include "includes/paginator.html" %}
+    {% endif %}
+  {% else %}
+    <div class="text-center py-5">
+      <div class="alert alert-info">
+        <p class="mb-0">В этой категории пока нет товаров.</p>
+      </div>
+      <a href="/" class="btn btn-primary mt-3">
+        Вернуться в каталог
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

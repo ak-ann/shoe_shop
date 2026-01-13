@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% block title %}Регистрация - ShoeShop{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5" style="background: linear-gradient(135deg, #FAFAFA 0%, #FFFFFF 100%); min-height: 100vh;">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-xl-4 col-lg-5 col-md-7 col-sm-9">
+            <div class="card border-0 shadow-lg overflow-hidden" style="border-radius: 20px;">
+                <!-- Верхняя декоративная полоса -->
+                <div class="position-relative">
+                    <div style="height: 6px; background: linear-gradient(90deg, #800020 0%, #660033 100%);"></div>
+                    <div class="position-absolute top-0 start-50 translate-middle mt-3">
+                        <div class="bg-white p-3 rounded-circle shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#800020" viewBox="0 0 16 16">
+                                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                                <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <!-- Заголовок -->
+                    <div class="text-center mb-5 mt-4">
+                        <h2 class="fw-bold mb-2" style="color: #222222;">Создание аккаунта</h2>
+                        <p class="text-muted mb-0">Присоединяйтесь к нашему премиум-сообществу</p>
+                    </div>
+
+                    <!-- Форма -->
+                    <form method="post" novalidate>
+                        {{ form.csrf_token }}
+                        
+                        <!-- Поле имени пользователя -->
+                        <div class="mb-4">
+                            <label for="username" class="form-label fw-medium mb-2 d-flex align-items-center" style="color: #222222;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#800020" viewBox="0 0 16 16" class="me-2">
+                                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                                </svg>
+                                {{ form.username.label.text }}
+                            </label>
+                            <div class="position-relative">
+                                {{ form.username(class="form-control py-3 px-4", placeholder="admin", style="border: 2px solid #e8e8e8; border-radius: 10px; background-color: #FAFAFA;") }}
+                                <div class="position-absolute top-50 end-0 translate-middle-y me-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#800020" viewBox="0 0 16 16">
+                                        <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="mt-2 ps-1">
+                                <small class="text-muted">От 3 до 20 символов</small>
+                            </div>
+                            {% if form.username.errors %}
+                                {% for error in form.username.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Поле Email -->
+                        <div class="mb-4">
+                            <label for="email" class="form-label fw-medium mb-2 d-flex align-items-center" style="color: #222222;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#800020" viewBox="0 0 16 16" class="me-2">
+                                    <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/>
+                                </svg>
+                                {{ form.email.label.text }}
+                            </label>
+                            <div class="position-relative">
+                                {{ form.email(class="form-control py-3 px-4", placeholder="example@email.com", style="border: 2px solid #e8e8e8; border-radius: 10px; background-color: #FAFAFA;") }}
+                                <div class="position-absolute top-50 end-0 translate-middle-y me-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#800020" viewBox="0 0 16 16">
+                                        <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="mt-2 ps-1">
+                                <small class="text-muted">Мы никогда не делимся вашим email</small>
+                            </div>
+                            {% if form.email.errors %}
+                                {% for error in form.email.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Разделитель -->
+                        <div class="position-relative my-4">
+                            <hr class="my-4">
+                            <div class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">
+                                Создание пароля
+                            </div>
+                        </div>
+
+                        <!-- Поле пароля -->
+                        <div class="mb-4">
+                            <label for="password" class="form-label fw-medium mb-2 d-flex align-items-center" style="color: #222222;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#800020" viewBox="0 0 16 16" class="me-2">
+                                    <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+                                </svg>
+                                {{ form.password.label.text }}
+                            </label>
+                            <div class="position-relative">
+                                {{ form.password(class="form-control py-3 px-4", placeholder="••••••••", style="border: 2px solid #e8e8e8; border-radius: 10px; background-color: #FAFAFA; letter-spacing: 2px;") }}
+                                <div class="position-absolute top-50 end-0 translate-middle-y me-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#800020" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M10.854 6.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 8.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="mt-2 ps-1">
+                                <small class="text-muted">Используйте буквы, цифры и символы</small>
+                            </div>
+                            <!-- Индикатор силы пароля -->
+                            
+                            {% if form.password.errors %}
+                                {% for error in form.password.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Подтверждение пароля -->
+                        <div class="mb-4">
+                            <label for="confirm_password" class="form-label fw-medium mb-2 d-flex align-items-center" style="color: #222222;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#800020" viewBox="0 0 16 16" class="me-2">
+                                    <path fill-rule="evenodd" d="M10.854 6.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 8.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                                    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                                    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                                </svg>
+                                {{ form.confirm_password.label.text }}
+                            </label>
+                            <div class="position-relative">
+                                {{ form.confirm_password(class="form-control py-3 px-4", placeholder="Повторите пароль", style="border: 2px solid #e8e8e8; border-radius: 10px; background-color: #FAFAFA;") }}
+                                <div class="position-absolute top-50 end-0 translate-middle-y me-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#800020" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M10.854 6.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 8.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            {% if form.confirm_password.errors %}
+                                {% for error in form.confirm_password.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Кнопка регистрации -->
+                        <div class="d-grid mb-4">
+                            <button type="submit" class="btn py-3 fw-bold text-white border-0" 
+                                    style="background: linear-gradient(135deg, #800020 0%, #660033 100%); border-radius: 10px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" class="me-2">
+                                    <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z"/>
+                                    <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+                                </svg>
+                                Создать аккаунт
+                            </button>
+                        </div>
+
+                        <!-- Ссылка на вход -->
+                        <div class="text-center pt-3 border-top">
+                            <p class="text-muted mb-2">Уже есть аккаунт?</p>
+                            <a href="{{ url_for('users.login') }}" class="btn btn-outline py-2 px-4 fw-medium" 
+                               style="border: 2px solid #800020; color: #800020; border-radius: 8px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="me-2">
+                                    <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+                                    <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+                                </svg>
+                                Войти в аккаунт
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Информация о безопасности -->
+            <div class="text-center mt-4">
+                <small class="text-muted d-flex align-items-center justify-content-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#28a745" viewBox="0 0 16 16" class="me-2">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                    </svg>
+                    Ваши данные защищены по стандартам безопасности
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.querySelector('input[name="password"]');
+    const progressBar = document.querySelector('.progress-bar');
+    const progressText = document.querySelector('.progress-bar + .progress-text');
+    const strengthText = document.querySelector('.strength-text');
+    
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            const strength = calculatePasswordStrength(password);
+            updateStrengthIndicator(strength);
+        });
+    }
+    
+    function calculatePasswordStrength(password) {
+        let score = 0;
+        
+        // Длина пароля
+        if (password.length >= 8) score += 25;
+        if (password.length >= 12) score += 10;
+        
+        // Разнообразие символов
+        if (/[a-z]/.test(password)) score += 10; // строчные буквы
+        if (/[A-Z]/.test(password)) score += 15; // заглавные буквы
+        if (/[0-9]/.test(password)) score += 15; // цифры
+        if (/[^a-zA-Z0-9]/.test(password)) score += 20; // спецсимволы
+        
+        // Повторяющиеся символы
+        const repeatedChars = (password.match(/(.)\1{2,}/g) || []).length;
+        score -= repeatedChars * 5;
+        
+        // Последовательности
+        const sequences = (password.match(/(abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz|012|123|234|345|456|567|678|789)/gi) || []).length;
+        score -= sequences * 10;
+        
+        // Ограничиваем от 0 до 100
+        return Math.min(Math.max(score, 0), 100);
+    }
+    
+    function updateStrengthIndicator(strength) {
+        const progressBar = document.querySelector('.progress-bar');
+        const progressPercent = document.querySelector('.progress-percent');
+        const strengthText = document.querySelector('.strength-text');
+        
+        if (progressBar) {
+            progressBar.style.width = strength + '%';
+            
+            // Меняем цвет в зависимости от силы
+            if (strength < 30) {
+                progressBar.style.backgroundColor = '#dc3545'; // красный
+                if (strengthText) strengthText.textContent = 'Слабый';
+                if (strengthText) strengthText.style.color = '#dc3545';
+            } else if (strength < 60) {
+                progressBar.style.backgroundColor = '#ffc107'; // желтый
+                if (strengthText) strengthText.textContent = 'Средний';
+                if (strengthText) strengthText.style.color = '#ffc107';
+            } else if (strength < 80) {
+                progressBar.style.backgroundColor = '#28a745'; // зеленый
+                if (strengthText) strengthText.textContent = 'Хороший';
+                if (strengthText) strengthText.style.color = '#28a745';
+            } else {
+                progressBar.style.backgroundColor = '#800020'; // бордовый
+                if (strengthText) strengthText.textContent = 'Отличный';
+                if (strengthText) strengthText.style.color = '#800020';
+            }
+            
+            if (progressPercent) {
+                progressPercent.textContent = strength + '%';
+            }
+        }
+    }
+    
+    // Инициализация при загрузке
+    if (passwordInput && passwordInput.value) {
+        const strength = calculatePasswordStrength(passwordInput.value);
+        updateStrengthIndicator(strength);
+    }
+});
+</script>
+{% endblock %}

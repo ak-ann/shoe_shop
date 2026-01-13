@@ -1,0 +1,1490 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }} | Élégance{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="premium-profile">
+    <!-- Герой профиля -->
+    <section class="profile-hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="profile-avatar-section">
+                    <form method="POST" enctype="multipart/form-data" class="avatar-form">
+                        <div class="avatar-container">
+                            {% if user.avatar %}
+                            <img src="{{ user.avatar }}" alt="{{ user.username }}" class="profile-avatar">
+                            {% else %}
+                            <div class="avatar-placeholder">
+                                {{ (user.first_name|first if user.first_name else '') + (user.last_name|first if user.last_name else '') or user.username|first|upper }}
+                            </div>
+                            {% endif %}
+                            
+                            {% if is_owner %}
+                            <label for="avatarInput" class="avatar-edit-btn" title="Сменить аватар">
+                                <i class="fas fa-camera"></i>
+                            </label>
+                            <input type="file" name="avatar" id="avatarInput" accept="image/*" 
+                                   onchange="previewAvatar(this)" style="display: none;">
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Кнопки формы (скрыты до выбора файла) -->
+                        {% if is_owner %}
+                        <div class="avatar-form-buttons" id="avatarButtons" style="display: none; margin-top: 15px;">
+                            <button type="submit" class="btn-save-avatar">
+                                <i class="fas fa-check me-2"></i>Сохранить
+                            </button>
+                            <button type="button" class="btn-cancel-avatar" onclick="cancelAvatarUpload()">
+                                <i class="fas fa-times me-2"></i>Отмена
+                            </button>
+                        </div>
+                        {% endif %}
+                    </form>
+                    
+                    <div class="profile-verification">
+                        <i class="fas fa-shield-check"></i>
+                        <span>Проверенный продавец</span>
+                    </div>
+                </div>
+                
+                <div class="profile-header-content">
+                    <div class="profile-header-main">
+                        <h1 class="profile-name">{{ user.username }}</h1>
+                        {% if user.first_name or user.last_name %}
+                        <p class="profile-fullname">{{ user.first_name }} {{ user.last_name }}</p>
+                        {% endif %}
+                        
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <div class="stat-number">{{ products|length }}</div>
+                                <div class="stat-label">Товаров</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">{{ user.created_at.year if user.created_at else '—' }}</div>
+                                <div class="stat-label">Год регистрации</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">{{ products|selectattr('is_published', 'equalto', true)|list|length }}</div>
+                                <div class="stat-label">Опубликовано</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-actions">
+                        {% if is_owner %}
+                        <a href="{{ url_for('users.edit_profile') }}" class="btn-edit-profile">
+                            <i class="fas fa-user-edit"></i>
+                            <span>Редактировать профиль</span>
+                        </a>
+                        {% else %}
+                        <button class="btn-message">
+                            <i class="fas fa-envelope"></i>
+                            <span>Написать сообщение</span>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Основное содержимое -->
+    <div class="container">
+        <div class="profile-content-grid">
+            <!-- Левая колонка - информация -->
+            <div class="profile-sidebar">
+                <!-- Контактная информация -->
+                <div class="profile-card">
+                    <div class="card-header">
+                        <i class="fas fa-id-card"></i>
+                        <h3>Контактная информация</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-info">
+                                <span class="contact-label">Email</span>
+                                <span class="contact-value">{{ user.email }}</span>
+                            </div>
+                        </div>
+                        
+                        {% if user.phone %}
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-info">
+                                <span class="contact-label">Телефон</span>
+                                <span class="contact-value">{{ user.phone }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if user.address %}
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="contact-info">
+                                <span class="contact-label">Адрес</span>
+                                <span class="contact-value">{{ user.address }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="contact-info">
+                                <span class="contact-label">На сайте с</span>
+                                <span class="contact-value">
+                                    {{ user.created_at.strftime('%d.%m.%Y') if user.created_at else 'Не указано' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- О себе -->
+                {% if user.about %}
+                <div class="profile-card">
+                    <div class="card-header">
+                        <i class="fas fa-user-circle"></i>
+                        <h3>О себе</h3>
+                    </div>
+                    <div class="card-content">
+                        <p class="about-text">{{ user.about }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Быстрые действия -->
+                {% if is_owner %}
+                <div class="profile-card">
+                    <div class="card-header">
+                        <i class="fas fa-bolt"></i>
+                        <h3>Быстрые действия</h3>
+                    </div>
+                    <div class="card-content">
+                        <a href="{{ url_for('shop.cart_route') }}" class="quick-action">
+                            <div class="action-icon">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <div class="action-info">
+                                <span class="action-title">Моя корзина</span>
+                                <span class="action-subtitle">Просмотр и оформление</span>
+                            </div>
+                        </a>
+                        
+                        <a href="{{ url_for('users.logout') }}" class="quick-action logout">
+                            <div class="action-icon">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </div>
+                            <div class="action-info">
+                                <span class="action-title">Выйти из системы</span>
+                                <span class="action-subtitle">Завершить сеанс</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Правая колонка - товары -->
+            <div class="profile-main">
+                <!-- Заголовок секции товаров -->
+                <div class="section-header">
+                    <div class="header-left">
+                        <h2>
+                            <i class="fas fa-gem"></i>
+                            {% if is_owner %}
+                                Моя коллекция
+                            {% else %}
+                                Коллекция продавца
+                            {% endif %}
+                        </h2>
+                        <p class="section-subtitle">
+                            {{ products|selectattr('is_published', 'equalto', true)|list|length }} опубликованных товаров
+                        </p>
+                    </div>
+                    
+                    {% if is_owner and products %}
+                    <div class="header-right">
+                        <div class="filter-dropdown">
+                            <select class="filter-select" id="productFilter">
+                                <option value="all">Все товары</option>
+                                <option value="published">Опубликованные</option>
+                                <option value="drafts">Черновики</option>
+                            </select>
+                        </div>
+                        
+                        <a href="{{ url_for('admin.create_product') }}" class="btn-new-product">
+                            <i class="fas fa-plus"></i>
+                            <span>Новый товар</span>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Сетка товаров -->
+                {% if products %}
+                <div class="products-grid">
+                    {% for product in products %}
+                    <div class="profile-product-card" data-status="{{ 'published' if product.is_published else 'draft' }}">
+                        <div class="product-image-container">
+                            {% if product.main_image %}
+                            <img src="{{ product.main_image }}" 
+                                 alt="{{ product.name }}"
+                                 class="product-image">
+                            {% else %}
+                            <div class="product-image-placeholder">
+                                <i class="fas fa-shoe-prints"></i>
+                            </div>
+                            {% endif %}
+                            
+                            {% if not product.is_published %}
+                            <div class="product-status-badge draft">
+                                <i class="fas fa-pen"></i>
+                                Черновик
+                            </div>
+                            {% endif %}
+                            
+                            {% if product.discount_percent and product.discount_percent > 0 %}
+                            <div class="product-discount">
+                                -{{ product.discount_percent }}%
+                            </div>
+                            {% endif %}
+                            
+                            <div class="product-actions-overlay">
+                                <a href="{{ url_for('shop.product_detail_route', product_id=product.id) }}" 
+                                   class="action-btn view-btn" title="Посмотреть">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if is_owner %}
+                                <a href="{{ url_for('shop.edit_product', product_id=product.id) }}" 
+                                   class="action-btn edit-btn" title="Редактировать">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="product-info">
+                            <div class="product-meta">
+                                {% if product.category_name %}
+                                <span class="product-category">{{ product.category_name }}</span>
+                                {% endif %}
+                                {% if product.brand_name %}
+                                <span class="product-brand">{{ product.brand_name }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <h3 class="product-title">{{ product.name }}</h3>
+                            
+                            <div class="product-price-section">
+                                {% if product.price %}
+                                <div class="product-price">{{ product.price }} BYN</div>
+                                {% if product.old_price and product.old_price > product.price %}
+                                <div class="product-old-price">{{ product.old_price }} BYN</div>
+                                {% endif %}
+                                {% else %}
+                                <div class="product-price-request">Цена по запросу</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="product-stats">
+                                <div class="product-stat">
+                                    <i class="fas fa-eye"></i>
+                                    <span>12 просмотров</span>
+                                </div>
+                                <div class="product-stat">
+                                    <i class="far fa-heart"></i>
+                                    <span>3 в избранном</span>
+                                </div>
+                            </div>
+                            
+                            <div class="product-date">
+                                <i class="far fa-clock"></i>
+                                {{ product.created_at.strftime('%d.%m.%Y') if product.created_at else '' }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Сообщение о пустом результате фильтрации -->
+                <div class="filter-empty" id="filterEmpty" style="display: none;">
+                    <div class="empty-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Товары не найдены</h3>
+                    <p>Попробуйте изменить параметры фильтрации</p>
+                </div>
+                {% else %}
+                <!-- Состояние пустого профиля -->
+                <div class="empty-profile">
+                    <div class="empty-illustration">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <div class="empty-content">
+                        <h3>Коллекция пуста</h3>
+                        <p>
+                            {% if is_owner %}
+                                Начните создавать свою коллекцию премиум обуви прямо сейчас. 
+                                Добавьте первый товар и откройте его для покупателей.
+                            {% else %}
+                                У этого продавца пока нет товаров в коллекции.
+                            {% endif %}
+                        </p>
+                        {% if is_owner %}
+                        <a href="{{ url_for('admin.create_product') }}" class="btn-start-collection">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Создать первый товар</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Пагинация (если нужна) -->
+                {% if products and products|length >= 12 %}
+                <div class="pagination">
+                    <button class="pagination-btn prev" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="pagination-current">1</span>
+                    <span class="pagination-total">из 3</span>
+                    <button class="pagination-btn next">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+/* === ПРЕМИУМ ПРОФИЛЬ === */
+.premium-profile {
+    font-family: 'Inter', sans-serif;
+    color: #222222;
+    background: #FFFFFF;
+    min-height: 100vh;
+}
+
+/* === ГЕРОЙ ПРОФИЛЯ === */
+.profile-hero {
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+    padding: 60px 0;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255, 182, 193, 0.15) 0%, transparent 70%);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.hero-content {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    position: relative;
+    z-index: 1;
+}
+
+.profile-avatar-section {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.avatar-container {
+    position: relative;
+}
+
+.profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid white;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-placeholder {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FFC0CB 0%, #FFB6C1 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #222222;
+    font-size: 2.5rem;
+    font-weight: 700;
+    border: 4px solid white;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-edit-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    color: #800020;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.avatar-edit-btn:hover {
+    background: #800020;
+    color: white;
+    transform: scale(1.1);
+}
+
+.avatar-form-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.btn-save-avatar, .btn-cancel-avatar {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.btn-save-avatar {
+    background: white;
+    color: #800020;
+}
+
+.btn-save-avatar:hover {
+    background: #800020;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-cancel-avatar {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-cancel-avatar:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.profile-verification {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.profile-verification i {
+    color: #FFC0CB;
+}
+
+.profile-header-content {
+    flex: 1;
+}
+
+.profile-header-main {
+    margin-bottom: 25px;
+}
+
+.profile-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: white;
+}
+
+.profile-fullname {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 25px;
+}
+
+.profile-stats {
+    display: flex;
+    gap: 40px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: white;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.profile-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-edit-profile,
+.btn-add-product,
+.btn-message {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.btn-edit-profile {
+    background: white;
+    color: #800020;
+}
+
+.btn-edit-profile:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn-add-product {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-add-product:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn-message {
+    background: #FFC0CB;
+    color: #222222;
+}
+
+.btn-message:hover {
+    background: #FFB6C1;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 182, 193, 0.3);
+}
+
+/* === ОСНОВНОЙ КОНТЕНТ === */
+.profile-content-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 30px;
+    padding: 40px 0;
+}
+
+@media (max-width: 992px) {
+    .profile-content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* === БОКОВАЯ ПАНЕЛЬ === */
+.profile-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.profile-card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(128, 0, 32, 0.08);
+}
+
+.card-header {
+    padding: 20px;
+    background: #FAFAFA;
+    border-bottom: 1px solid rgba(128, 0, 32, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.card-header i {
+    color: #800020;
+    font-size: 1.2rem;
+}
+
+.card-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+    color: #222222;
+}
+
+.card-content {
+    padding: 20px;
+}
+
+/* Контактная информация */
+.contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(128, 0, 32, 0.05);
+}
+
+.contact-item:last-child {
+    border-bottom: none;
+}
+
+.contact-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(128, 0, 32, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #800020;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.contact-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.contact-label {
+    font-size: 0.85rem;
+    color: #666666;
+    margin-bottom: 4px;
+}
+
+.contact-value {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #222222;
+}
+
+/* О себе */
+.about-text {
+    color: #666666;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Быстрые действия */
+.quick-action {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #222222;
+    transition: all 0.3s ease;
+    margin-bottom: 8px;
+}
+
+.quick-action:last-child {
+    margin-bottom: 0;
+}
+
+.quick-action:hover {
+    background: rgba(128, 0, 32, 0.05);
+    transform: translateX(5px);
+}
+
+.quick-action.logout {
+    color: #dc3545;
+}
+
+.quick-action.logout:hover {
+    background: rgba(220, 53, 69, 0.05);
+}
+
+.action-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(128, 0, 32, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #800020;
+    font-size: 1.2rem;
+}
+
+.action-info {
+    flex: 1;
+}
+
+.action-title {
+    display: block;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+}
+
+.action-subtitle {
+    display: block;
+    font-size: 0.85rem;
+    color: #666666;
+}
+
+/* === ОСНОВНАЯ ЧАСТЬ === */
+.profile-main {
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(128, 0, 32, 0.08);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(128, 0, 32, 0.1);
+}
+
+.header-left h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: #222222;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-left h2 i {
+    color: #800020;
+}
+
+.section-subtitle {
+    color: #666666;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.filter-dropdown {
+    position: relative;
+}
+
+.filter-select {
+    padding: 10px 35px 10px 15px;
+    border: 2px solid rgba(128, 0, 32, 0.2);
+    border-radius: 8px;
+    background: white;
+    color: #222222;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23800020' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #800020;
+    box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.1);
+}
+
+.btn-new-product {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-new-product:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(128, 0, 32, 0.2);
+}
+
+/* СЕТКА ТОВАРОВ */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.profile-product-card {
+    background: #FFFFFF;
+    border-radius: 15px;
+    overflow: hidden;
+    border: 1px solid rgba(128, 0, 32, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(128, 0, 32, 0.12);
+    border-color: rgba(128, 0, 32, 0.15);
+}
+
+.product-image-container {
+    position: relative;
+    height: 200px;
+    background: #FAFAFA;
+    overflow: hidden;
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.profile-product-card:hover .product-image {
+    transform: scale(1.05);
+}
+
+.product-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(128, 0, 32, 0.3);
+    font-size: 3rem;
+}
+
+.product-status-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 6px 12px;
+    background: rgba(255, 182, 193, 0.95);
+    color: #222222;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 2;
+}
+
+.product-discount {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #FFC0CB 0%, #FFB6C1 100%);
+    color: #222222;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    z-index: 2;
+    box-shadow: 0 4px 15px rgba(255, 182, 193, 0.3);
+}
+
+.product-actions-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(128, 0, 32, 0.8) 0%, transparent 40%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.profile-product-card:hover .product-actions-overlay {
+    opacity: 1;
+}
+
+.action-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-decoration: none;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+}
+
+.view-btn {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.edit-btn {
+    background: rgba(255, 182, 193, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.action-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.product-info {
+    padding: 20px;
+}
+
+.product-meta {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.product-category,
+.product-brand {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.product-category {
+    background: rgba(128, 0, 32, 0.1);
+    color: #800020;
+}
+
+.product-brand {
+    background: rgba(255, 182, 193, 0.1);
+    color: #D85D7A;
+}
+
+.product-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #222222;
+    margin: 0 0 12px 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.product-price-section {
+    margin-bottom: 15px;
+}
+
+.product-price {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #800020;
+    margin-bottom: 4px;
+}
+
+.product-old-price {
+    font-size: 1rem;
+    color: #999999;
+    text-decoration: line-through;
+}
+
+.product-price-request {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #666666;
+}
+
+.product-stats {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+}
+
+.product-stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #666666;
+}
+
+.product-stat i {
+    color: #800020;
+}
+
+.product-date {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #999999;
+}
+
+.product-date i {
+    font-size: 0.9rem;
+}
+
+/* Сообщение о пустом результате фильтрации */
+.filter-empty {
+    text-align: center;
+    padding: 60px 20px;
+    display: none;
+}
+
+.filter-empty .empty-icon {
+    font-size: 3rem;
+    color: rgba(128, 0, 32, 0.2);
+    margin-bottom: 20px;
+}
+
+.filter-empty h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: #222222;
+    margin-bottom: 10px;
+}
+
+.filter-empty p {
+    color: #666666;
+    font-size: 1rem;
+}
+
+/* Состояние пустого профиля */
+.empty-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 80px 20px;
+    text-align: center;
+}
+
+.empty-illustration {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #FAFAFA 0%, #F0F0F0 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(128, 0, 32, 0.3);
+    font-size: 3.5rem;
+    margin-bottom: 30px;
+}
+
+.empty-content h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: #222222;
+    margin-bottom: 15px;
+}
+
+.empty-content p {
+    color: #666666;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 500px;
+    margin: 0 auto 30px;
+}
+
+.btn-start-collection {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+    color: white;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-start-collection:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(128, 0, 32, 0.3);
+}
+
+/* Пагинация */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(128, 0, 32, 0.1);
+}
+
+.pagination-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 2px solid rgba(128, 0, 32, 0.2);
+    background: white;
+    color: #800020;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pagination-btn:not(:disabled):hover {
+    background: #800020;
+    color: white;
+    border-color: #800020;
+    transform: translateY(-2px);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-current {
+    font-weight: 600;
+    color: #800020;
+    font-size: 1.1rem;
+}
+
+.pagination-total {
+    color: #666666;
+    font-size: 1rem;
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 1200px) {
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 992px) {
+    .hero-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+    }
+    
+    .profile-stats {
+        justify-content: center;
+    }
+    
+    .profile-actions {
+        justify-content: center;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    
+    .header-right {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .filter-select {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-hero {
+        padding: 40px 0;
+    }
+    
+    .profile-name {
+        font-size: 2.2rem;
+    }
+    
+    .profile-stats {
+        gap: 25px;
+    }
+    
+    .stat-number {
+        font-size: 1.8rem;
+    }
+    
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .profile-name {
+        font-size: 1.8rem;
+    }
+    
+    .avatar-placeholder,
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        font-size: 2rem;
+    }
+    
+    .profile-stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+// Функции для работы с аватаром
+function previewAvatar(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            // Показываем предпросмотр
+            const avatarContainer = document.querySelector('.avatar-container');
+            const existingAvatar = avatarContainer.querySelector('.profile-avatar');
+            const existingPlaceholder = avatarContainer.querySelector('.avatar-placeholder');
+            
+            if (existingAvatar) {
+                existingAvatar.src = e.target.result;
+            } else if (existingPlaceholder) {
+                // Заменяем placeholder на изображение
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = "{{ user.username }}";
+                img.className = "profile-avatar";
+                avatarContainer.replaceChild(img, existingPlaceholder);
+            }
+            
+            // Показываем кнопки сохранения/отмены
+            document.getElementById('avatarButtons').style.display = 'flex';
+        };
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function cancelAvatarUpload() {
+    // Сбрасываем выбранный файл
+    const avatarInput = document.getElementById('avatarInput');
+    avatarInput.value = '';
+    
+    // Скрываем кнопки
+    document.getElementById('avatarButtons').style.display = 'none';
+    
+    // Восстанавливаем исходный аватар
+    const avatarContainer = document.querySelector('.avatar-container');
+    const existingAvatar = avatarContainer.querySelector('.profile-avatar');
+    const existingPlaceholder = avatarContainer.querySelector('.avatar-placeholder');
+    
+    {% if user.avatar %}
+        // Если был оригинальный аватар, восстанавливаем его
+        if (!existingAvatar) {
+            // Если аватар был удален (заменен на placeholder), восстанавливаем
+            const img = document.createElement('img');
+            img.src = "{{ user.avatar }}";
+            img.alt = "{{ user.username }}";
+            img.className = "profile-avatar";
+            if (existingPlaceholder) {
+                avatarContainer.replaceChild(img, existingPlaceholder);
+            }
+        }
+    {% endif %}
+}
+
+// Фильтрация товаров
+document.addEventListener('DOMContentLoaded', function() {
+    const filterSelect = document.getElementById('productFilter');
+    const productCards = document.querySelectorAll('.profile-product-card');
+    const filterEmpty = document.getElementById('filterEmpty');
+    const productsGrid = document.querySelector('.products-grid');
+    
+    if (filterSelect) {
+        filterSelect.addEventListener('change', function() {
+            const filterValue = this.value;
+            let visibleCount = 0;
+            
+            productCards.forEach(card => {
+                const status = card.getAttribute('data-status');
+                
+                if (filterValue === 'all' || filterValue === status) {
+                    card.style.display = 'block';
+                    card.style.animation = 'fadeIn 0.4s ease';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Показываем/скрываем сообщение "не найдено"
+            if (visibleCount === 0) {
+                filterEmpty.style.display = 'block';
+                if (productsGrid) productsGrid.style.display = 'none';
+            } else {
+                filterEmpty.style.display = 'none';
+                if (productsGrid) productsGrid.style.display = 'grid';
+            }
+        });
+    }
+    
+    // Анимация появления карточек
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    productCards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+});
+
+// Показываем уведомления
+function showNotification(message, type = 'success') {
+    // Создаем элемент уведомления
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#28a745' : '#dc3545'};
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Удаляем через 3 секунды
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Анимации для уведомлений
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

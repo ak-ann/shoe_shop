@@ -1,0 +1,498 @@
+{% extends "base.html" %}
+
+{% block title %}Редактировать отзыв | Élégance{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card edit-review-card">
+                <div class="card-header">
+                    <h3 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>
+                        Редактирование отзыва
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Информация о товаре -->
+                    <div class="product-info-review mb-4">
+                        <div class="d-flex align-items-center">
+                            <div class="product-icon me-3">
+                                <i class="fas fa-shoe-prints"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Товар ID: {{ product_id }}</h5>
+                                <p class="text-muted mb-0">ID отзыва: {{ review.id }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Форма редактирования -->
+                    <form method="POST" action="{{ url_for('shop.edit_review_route', product_id=product_id, review_id=review.id) }}">
+                        <!-- Оценка -->
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-bold">Ваша оценка:</label>
+                            <div class="star-rating-input">
+                                {% for i in range(5, 0, -1) %}
+                                <input type="radio" id="edit_star{{ i }}" name="rating" value="{{ i }}" 
+                                       {% if rating == i %}checked{% endif %}
+                                       class="star-input">
+                                <label for="edit_star{{ i }}" class="star-label-input" title="{{ i }} звёзд">
+                                    <i class="far fa-star"></i>
+                                    <span class="star-number">{{ i }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                            <div class="rating-hint mt-2">Выберите оценку от 1 до 5 звезд</div>
+                        </div>
+                        
+                        <!-- Текст отзыва -->
+                        <div class="form-group mb-4">
+                            <label for="text" class="form-label fw-bold">Текст отзыва:</label>
+                            <textarea name="text" id="text" 
+                                    class="form-control review-textarea" 
+                                    rows="5" 
+                                    placeholder="Поделитесь вашим мнением о товаре..."
+                                    required 
+                                    minlength="10"
+                                    maxlength="1000">{{ comment }}</textarea>
+                            <div class="form-text mt-2">
+                                <span id="char-count">{{ comment|length }}</span> / 1000 символов (минимум 10)
+                            </div>
+                        </div>
+                        
+                        <!-- Кнопки -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('shop.product_detail_route', product_id=product_id) }}" 
+                               class="btn btn-back">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Назад к товару
+                            </a>
+                            
+                            <div class="d-flex gap-3">
+                                <button type="submit" class="btn btn-save">
+                                    <i class="fas fa-save me-2"></i>
+                                    Сохранить изменения
+                                </button>
+                                
+                                <a href="{{ url_for('shop.product_detail_route', product_id=product_id) }}" 
+                                   class="btn btn-cancel">
+                                    <i class="fas fa-times me-2"></i>
+                                    Отмена
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Информация о текущем отзыве -->
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <i class="far fa-calendar me-2"></i>
+                                <span>Создан: {{ review.created_at.strftime('%d.%m.%Y %H:%M') if review.created_at else 'Не указано' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-md-end mt-2 mt-md-0">
+                            <div class="info-item">
+                                <i class="fas fa-user me-2"></i>
+                                <span>Автор: {{ review.author_name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* === БОРДОВЫЙ СТИЛЬ РЕДАКТИРОВАНИЯ ОТЗЫВА === */
+.edit-review-card {
+    border: 2px solid rgba(128, 0, 32, 0.15);
+    border-radius: 16px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 15px 35px rgba(128, 0, 32, 0.08);
+}
+
+.edit-review-card .card-header {
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+    color: white;
+    padding: 25px 30px;
+    border-bottom: none;
+    border-radius: 16px 16px 0 0;
+}
+
+.edit-review-card .card-header h3 {
+    color: white;
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.edit-review-card .card-header h3 i {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.product-info-review {
+    background: linear-gradient(135deg, #FFF9FB 0%, #FFF5F8 100%);
+    border: 1px solid rgba(128, 0, 32, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0 30px;
+}
+
+.product-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.3rem;
+}
+
+.product-info-review h5 {
+    color: #800020;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.product-info-review .text-muted {
+    color: rgba(128, 0, 32, 0.6) !important;
+    font-size: 0.9rem;
+}
+
+/* Улучшенные звезды */
+.star-rating-input {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.star-input {
+    display: none;
+}
+
+.star-label-input {
+    position: relative;
+    cursor: pointer;
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.star-label-input i {
+    font-size: 2rem;
+    color: #E0E0E0;
+    transition: all 0.3s ease;
+}
+
+.star-label-input .star-number {
+    position: absolute;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #666;
+    bottom: -20px;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.star-input:checked + .star-label-input i,
+.star-label-input:hover i {
+    color: #FFD700;
+    transform: scale(1.15);
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+
+.star-input:checked + .star-label-input .star-number {
+    color: #800020;
+    font-weight: 700;
+    opacity: 1;
+}
+
+.rating-hint {
+    color: #800020;
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+/* Поле текста */
+.review-textarea {
+    border: 2px solid rgba(128, 0, 32, 0.2);
+    border-radius: 12px;
+    padding: 18px;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    color: #333;
+    background: #FAFAFA;
+    transition: all 0.3s ease;
+    resize: vertical;
+    min-height: 150px;
+}
+
+.review-textarea:focus {
+    border-color: #800020;
+    box-shadow: 0 0 0 4px rgba(128, 0, 32, 0.15);
+    outline: none;
+    background: white;
+}
+
+/* Кнопки в бордовом стиле */
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 24px;
+    background: transparent;
+    color: #800020;
+    border: 2px solid #800020;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    background: rgba(128, 0, 32, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(128, 0, 32, 0.1);
+    color: #800020;
+}
+
+.btn-save {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(128, 0, 32, 0.2);
+}
+
+.btn-save:hover {
+    background: linear-gradient(135deg, #660033 0%, #4d0026 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(128, 0, 32, 0.3);
+    color: white;
+}
+
+.btn-cancel {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 24px;
+    background: transparent;
+    color: #dc3545;
+    border: 2px solid #dc3545;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background: rgba(220, 53, 69, 0.05);
+    transform: translateY(-2px);
+    color: #dc3545;
+}
+
+/* Футер */
+.edit-review-card .card-footer {
+    background: linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%);
+    border-top: 1px solid rgba(128, 0, 32, 0.1);
+    padding: 20px 30px;
+    border-radius: 0 0 16px 16px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.info-item i {
+    color: #800020;
+    width: 20px;
+}
+
+/* Счетчик символов */
+#char-count {
+    color: #800020;
+    font-weight: 700;
+}
+
+.form-text {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .edit-review-card .card-header {
+        padding: 20px;
+    }
+    
+    .product-info-review {
+        padding: 15px;
+    }
+    
+    .star-label-input {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .star-label-input i {
+        font-size: 1.6rem;
+    }
+    
+    .star-label-input .star-number {
+        bottom: -18px;
+        font-size: 0.7rem;
+    }
+    
+    .review-textarea {
+        padding: 15px;
+        font-size: 0.95rem;
+    }
+    
+    .btn-back, .btn-save, .btn-cancel {
+        padding: 10px 20px;
+        font-size: 0.95rem;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .d-flex.gap-3 {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+    
+    .edit-review-card .card-footer .row {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .edit-review-card .card-footer .col-md-6 {
+        width: 100%;
+        text-align: center !important;
+    }
+    
+    .info-item {
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Счетчик символов
+    const textarea = document.getElementById('text');
+    const charCount = document.getElementById('char-count');
+    
+    if (textarea && charCount) {
+        textarea.addEventListener('input', function() {
+            const length = this.value.length;
+            charCount.textContent = length;
+            
+            if (length < 10) {
+                charCount.style.color = '#dc3545';
+            } else if (length > 900) {
+                charCount.style.color = '#ffc107';
+            } else {
+                charCount.style.color = '#800020';
+            }
+        });
+        
+        // Инициализация цвета
+        const initialLength = textarea.value.length;
+        if (initialLength < 10) {
+            charCount.style.color = '#dc3545';
+        } else if (initialLength > 900) {
+            charCount.style.color = '#ffc107';
+        } else {
+            charCount.style.color = '#800020';
+        }
+    }
+    
+    // Подсветка звезд при наведении
+    const starInputs = document.querySelectorAll('.star-input');
+    const starLabels = document.querySelectorAll('.star-label-input');
+    
+    starLabels.forEach(label => {
+        label.addEventListener('mouseenter', function() {
+            const starId = this.getAttribute('for');
+            const starValue = parseInt(starId.replace('edit_star', ''));
+            
+            starLabels.forEach(l => {
+                l.querySelector('i').className = 'far fa-star';
+                l.querySelector('i').style.color = '#E0E0E0';
+            });
+            
+            for (let i = 1; i <= starValue; i++) {
+                const currentLabel = document.querySelector(`label[for="edit_star${i}"]`);
+                if (currentLabel) {
+                    currentLabel.querySelector('i').className = 'fas fa-star';
+                    currentLabel.querySelector('i').style.color = '#FFD700';
+                }
+            }
+        });
+        
+        label.addEventListener('mouseleave', function() {
+            const checkedStar = document.querySelector('.star-input:checked');
+            if (checkedStar) {
+                const starValue = parseInt(checkedStar.value);
+                
+                starLabels.forEach(l => {
+                    l.querySelector('i').className = 'far fa-star';
+                    l.querySelector('i').style.color = '#E0E0E0';
+                });
+                
+                for (let i = 1; i <= starValue; i++) {
+                    const currentLabel = document.querySelector(`label[for="edit_star${i}"]`);
+                    if (currentLabel) {
+                        currentLabel.querySelector('i').className = 'fas fa-star';
+                        currentLabel.querySelector('i').style.color = '#FFD700';
+                    }
+                }
+            }
+        });
+    });
+    
+    // Предупреждение при закрытии с несохраненными изменениями
+    let initialText = textarea ? textarea.value : '';
+    
+    window.addEventListener('beforeunload', function(e) {
+        if (textarea && textarea.value !== initialText) {
+            e.preventDefault();
+            e.returnValue = 'У вас есть несохраненные изменения. Вы уверены, что хотите уйти?';
+        }
+    });
+    
+    // Сброс предупреждения при сохранении
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            initialText = textarea ? textarea.value : '';
+        });
+    }
+});
+</script>
+{% endblock %}

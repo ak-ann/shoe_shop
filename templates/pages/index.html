@@ -1,0 +1,593 @@
+{% extends "base.html" %}
+
+{% block title %}Élégance | Премиальная обувь{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<!-- Главная секция -->
+<div class="premium-home">
+    <!-- Герой секция -->
+    <section class="hero-section py-5 py-md-6 py-lg-7">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-5 mb-lg-0">
+                    <span class="badge-premium d-inline-block mb-4">Эксклюзивная коллекция</span>
+                    <h1 class="hero-title mb-4">Искусство в каждом шаге</h1>
+                    <p class="hero-description mb-5">
+                        Откройте мир изысканной обуви ручной работы. Каждая пара — это симфония мастерства, 
+                        элегантности и неповторимого стиля.
+                    </p>
+                    
+                    <div class="hero-buttons d-flex flex-wrap gap-3 mb-5">
+                        <a href="{{ url_for('shop.categories') }}" class="btn btn-burgundy btn-lg px-4 py-3">
+                            <span>Исследовать коллекцию</span>
+                            <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                        <a href="#" class="btn btn-outline-burgundy btn-lg px-4 py-3">
+                            <i class="fas fa-play-circle me-2"></i>
+                            <span>Смотреть видео</span>
+                        </a>
+                    </div>
+                    
+                    <div class="hero-stats row g-4 pt-5 border-top border-light">
+                        <div class="col-4">
+                            <div class="stat text-center">
+                                <div class="stat-number mb-2">150+</div>
+                                <div class="stat-label">Эксклюзивных моделей</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat text-center">
+                                <div class="stat-number mb-2">25</div>
+                                <div class="stat-label">Мировых брендов</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat text-center">
+                                <div class="stat-number mb-2">3K+</div>
+                                <div class="stat-label">Довольных клиентов</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="hero-image position-relative">
+                        <div class="shoe-placeholder rounded-4 shadow-lg">
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <i class="fas fa-gem text-white display-1"></i>
+                            </div>
+                        </div>
+                        <div class="floating-label position-absolute shadow">
+                            <i class="fas fa-crown text-warning me-2"></i>
+                            <span class="fw-semibold">Премиум качество</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Преимущества -->
+    <section class="features-section py-5 py-md-6 py-lg-7 bg-white">
+        <div class="container">
+            <div class="section-header text-center mb-5 mb-lg-6">
+                <span class="section-subtitle d-block mb-3">Наши преимущества</span>
+                <h2 class="section-title mb-4">Почему выбирают Élégance</h2>
+                <p class="section-description mx-auto mb-0">
+                    Мы создаем обувь, которая становится продолжением вашей индивидуальности
+                </p>
+            </div>
+            
+            <div class="row g-4 g-lg-5">
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card h-100 p-4 rounded-4 text-center">
+                        <div class="feature-icon mx-auto mb-4">
+                            <i class="fas fa-hand-sparkles"></i>
+                        </div>
+                        <h3 class="feature-title h5 mb-3">Ручная работа</h3>
+                        <p class="feature-text mb-0">
+                            Каждая пара создается мастерами с многолетним опытом, уделяющими внимание каждой детали
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card h-100 p-4 rounded-4 text-center">
+                        <div class="feature-icon mx-auto mb-4">
+                            <i class="fas fa-feather-alt"></i>
+                        </div>
+                        <h3 class="feature-title h5 mb-3">Изысканные материалы</h3>
+                        <p class="feature-text mb-0">
+                            Итальянская кожа, французский текстиль и редкие виды замши премиум-класса
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card h-100 p-4 rounded-4 text-center">
+                        <div class="feature-icon mx-auto mb-4">
+                            <i class="fas fa-ruler-combined"></i>
+                        </div>
+                        <h3 class="feature-title h5 mb-3">Идеальная посадка</h3>
+                        <p class="feature-text mb-0">
+                            Анатомические стельки и продуманная конструкция для максимального комфорта
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card h-100 p-4 rounded-4 text-center">
+                        <div class="feature-icon mx-auto mb-4">
+                            <i class="fas fa-award"></i>
+                        </div>
+                        <h3 class="feature-title h5 mb-3">Гарантия качества</h3>
+                        <p class="feature-text mb-0">
+                            Пожизненная гарантия на швы и 2 года гарантии на материалы от производителя
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Коллекции -->
+    <section class="collections-section py-5 py-md-6 py-lg-7 bg-light">
+        <div class="container">
+            <div class="section-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end mb-5 mb-lg-6">
+                <div class="mb-4 mb-md-0">
+                    <span class="section-subtitle d-block mb-2">Коллекции</span>
+                    <h2 class="section-title mb-0">Избранные линии</h2>
+                </div>
+                <a href="{{ url_for('shop.categories') }}" class="link-all text-decoration-none">
+                    <span class="me-2">Все коллекции</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="row g-4 g-lg-5">
+                <div class="col-md-6 col-lg-4">
+                    <div class="collection-card bg-white rounded-4 overflow-hidden shadow-sm h-100">
+                        <div class="collection-image position-relative">
+                            <div class="collection-badge position-absolute top-0 start-0 m-4">
+                                Новая
+                            </div>
+                        </div>
+                        <div class="collection-content p-4">
+                            <h3 class="h5 mb-2">Вечерняя элегантность</h3>
+                            <p class="text-muted mb-0">12 уникальных моделей</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="collection-card bg-white rounded-4 overflow-hidden shadow-sm h-100">
+                        <div class="collection-image position-relative">
+                            <div class="collection-badge position-absolute top-0 start-0 m-4">
+                                Бестселлер
+                            </div>
+                        </div>
+                        <div class="collection-content p-4">
+                            <h3 class="h5 mb-2">Кэжуал премиум</h3>
+                            <p class="text-muted mb-0">18 моделей</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="collection-card bg-white rounded-4 overflow-hidden shadow-sm h-100">
+                        <div class="collection-image position-relative">
+                            <div class="collection-badge position-absolute top-0 start-0 m-4">
+                                Лимитированная
+                            </div>
+                        </div>
+                        <div class="collection-content p-4">
+                            <h3 class="h5 mb-2">Зимняя люкс</h3>
+                            <p class="text-muted mb-0">8 эксклюзивных моделей</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA секция -->
+    <section class="cta-section py-5 py-md-6 py-lg-7">
+        <div class="container">
+            <div class="cta-content text-center text-white mx-auto" style="max-width: 700px;">
+                <h2 class="mb-4">Начните свой стильный путь</h2>
+                <p class="mb-5 opacity-90">
+                    Зарегистрируйтесь для получения персональных предложений и эксклюзивного доступа
+                </p>
+                <div class="cta-buttons d-flex flex-column flex-sm-row justify-content-center gap-3">
+                    <a href="{{ url_for('users.register') }}" class="btn btn-warning btn-lg px-5 py-3 fw-semibold">
+                        <i class="fas fa-gem me-2"></i>
+                        <span>Создать аккаунт</span>
+                    </a>
+                    <a href="{{ url_for('shop.categories') }}" class="btn btn-outline-light btn-lg px-5 py-3">
+                        <span>Исследовать каталог</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+/* === ГЛОБАЛЬНЫЕ СТИЛИ === */
+* {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+    font-family: 'Inter', sans-serif !important;
+    color: #222222;
+    background: #FFFFFF;
+    overflow-x: hidden;
+}
+
+/* === ТИПОГРАФИЯ === */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif !important;
+    font-weight: 700 !important;
+}
+
+/* === ОСНОВНЫЕ КЛАССЫ === */
+.py-6 { padding-top: 4rem !important; padding-bottom: 4rem !important; }
+.py-7 { padding-top: 5rem !important; padding-bottom: 5rem !important; }
+
+.premium-shadow {
+    box-shadow: 0 10px 40px rgba(128, 0, 32, 0.08) !important;
+}
+
+.gold-accent {
+    color: #EFBF04 !important;
+}
+
+/* === ГЕРОЙ СЕКЦИЯ === */
+.hero-section {
+    background: linear-gradient(135deg, #FFFFFF 0%, #FAFAFA 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(128, 0, 32, 0.03) 0%, transparent 100%);
+    z-index: 0;
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 1;
+}
+
+.badge-premium {
+    padding: 8px 24px;
+    background: #800020;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 25px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 15px rgba(128, 0, 32, 0.2);
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    color: #222222;
+    line-height: 1.1;
+    max-width: 500px;
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+}
+
+.hero-description {
+    font-size: 1.1rem;
+    color: #555555;
+    line-height: 1.7;
+    max-width: 500px;
+}
+
+.btn-burgundy {
+    background: linear-gradient(135deg, #800020 0%, #660033 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+}
+
+.btn-burgundy:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(128, 0, 32, 0.3) !important;
+}
+
+.btn-outline-burgundy {
+    background: transparent !important;
+    color: #800020 !important;
+    border: 2px solid #800020 !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+}
+
+.btn-outline-burgundy:hover {
+    background: rgba(128, 0, 32, 0.05) !important;
+    transform: translateY(-3px);
+    border-color: #660033 !important;
+    color: #660033 !important;
+}
+
+.hero-stats .border-light {
+    border-color: rgba(128, 0, 32, 0.1) !important;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #800020;
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #666666;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.shoe-placeholder {
+    height: 500px;
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+    position: relative;
+}
+
+@media (max-width: 992px) {
+    .shoe-placeholder {
+        height: 400px;
+    }
+}
+
+.floating-label {
+    bottom: -20px;
+    right: -20px;
+    background: white;
+    padding: 15px 25px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    z-index: 2;
+}
+
+@media (max-width: 768px) {
+    .floating-label {
+        bottom: -15px;
+        right: 15px;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+}
+
+/* === СЕКЦИЯ ПРЕИМУЩЕСТВ === */
+.section-subtitle {
+    font-size: 0.9rem;
+    color: #800020;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.section-title {
+    font-size: 2.8rem;
+    color: #222222;
+}
+
+@media (max-width: 768px) {
+    .section-title {
+        font-size: 2rem;
+    }
+}
+
+.section-description {
+    font-size: 1.1rem;
+    color: #666666;
+    line-height: 1.7;
+}
+
+.feature-card {
+    border: 1px solid rgba(128, 0, 32, 0.05);
+    background: #FAFAFA;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(128, 0, 32, 0.1) !important;
+    border-color: rgba(128, 0, 32, 0.1) !important;
+}
+
+.feature-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.8rem;
+}
+
+.feature-title {
+    color: #222222;
+    font-weight: 700;
+}
+
+.feature-text {
+    color: #666666;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* === СЕКЦИЯ КОЛЛЕКЦИЙ === */
+.collection-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(128, 0, 32, 0.05);
+}
+
+.collection-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 25px 50px rgba(128, 0, 32, 0.1) !important;
+    border-color: rgba(128, 0, 32, 0.1) !important;
+}
+
+.collection-image {
+    height: 250px;
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+}
+
+@media (max-width: 768px) {
+    .collection-image {
+        height: 200px;
+    }
+}
+
+.collection-badge {
+    padding: 8px 20px;
+    background: white;
+    color: #800020;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.link-all {
+    color: #800020;
+    font-weight: 600;
+    padding-bottom: 5px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.link-all:hover {
+    color: #660033;
+    border-bottom-color: #800020;
+    transform: translateX(5px);
+}
+
+/* === CTA СЕКЦИЯ === */
+.cta-section {
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(239, 191, 4, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.cta-content {
+    position: relative;
+    z-index: 1;
+}
+
+.cta-section h2 {
+    font-size: 2.8rem;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .cta-section h2 {
+        font-size: 2rem;
+    }
+}
+
+.cta-section p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #EFBF04 0%, #D4AF37 100%) !important;
+    border: none !important;
+    color: #222222 !important;
+    font-weight: 700 !important;
+    border-radius: 10px !important;
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, #E0B404 0%, #C9A135 100%) !important;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(239, 191, 4, 0.3) !important;
+}
+</style>
+
+<script>
+// Плавная прокрутка
+document.addEventListener('DOMContentLoaded', function() {
+    // Анимация появления элементов
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Наблюдаем за элементами для анимации
+    document.querySelectorAll('.feature-card, .collection-card').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(el);
+    });
+    
+    // Анимация для героя
+    const heroElements = document.querySelectorAll('.hero-title, .hero-description, .hero-buttons');
+    heroElements.forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = `opacity 0.6s ease ${index * 0.2}s, transform 0.6s ease ${index * 0.2}s`;
+        
+        setTimeout(() => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, 100 + (index * 200));
+    });
+});
+</script>
+{% endblock %}

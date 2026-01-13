@@ -1,0 +1,3 @@
+username,email,first_name,last_name,phone,address,is_admin
+ivanov,ivan@example.com,Иван,Иванов,+79991234567,"Москва, ул. Ленина 1",False
+petrov,petr@example.com,Петр,Петров,+79998765432,"СПб, Невский пр. 10",True

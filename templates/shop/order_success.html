@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Заказ оформлен | Luxury Shoes</title>
+  <style>
+      body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          margin: 0;
+          padding: 20px;
+          background-color: #f5f5f5;
+      }
+      .container {
+          max-width: 800px;
+          margin: 50px auto;
+          background: white;
+          padding: 40px;
+          border-radius: 10px;
+          box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+          text-align: center;
+      }
+      .success-icon {
+          font-size: 80px;
+          color: #4CAF50;
+          margin: 20px 0;
+      }
+      .order-number {
+          font-size: 24px;
+          font-weight: bold;
+          background: #800020;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 5px;
+          display: inline-block;
+          margin: 20px 0;
+      }
+      .btn {
+          display: inline-block;
+          background-color: #800020;
+          color: white;
+          padding: 12px 30px;
+          text-decoration: none;
+          border-radius: 5px;
+          margin: 10px;
+          font-weight: bold;
+      }
+      .btn:hover {
+          background-color: #660033;
+      }
+  </style>
+</head>
+<body>
+  <div class="container">
+      <div class="success-icon">✓</div>
+      <h1 style="color: #800020;">Заказ успешно оформлен!</h1>
+      <p>Спасибо за покупку в нашем магазине.</p>
+      
+      <div class="order-number">
+          Номер заказа: {{ order_number }}
+      </div>
+      
+      <p>Дата заказа: {{ order_date }}</p>
+      <p>Чек отправлен на вашу электронную почту.</p>
+      <p>В течение 15 минут с вами свяжется наш менеджер для подтверждения заказа.</p>
+      
+      <div style="margin-top: 30px;">
+          <a href="/" class="btn">Продолжить покупки</a>
+          <a href="/download-receipt/{{ order_number }}" class="btn">Скачать чек</a>
+      </div>
+  </div>
+</body>
+</html>

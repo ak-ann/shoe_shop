@@ -1,0 +1,504 @@
+{% extends "base.html" %}
+{% block title %}Каталог обуви{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Стили для фильтров в ваших цветах */
+.filter-dropdown-btn {
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.filter-dropdown-btn:hover {
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(128, 0, 32, 0.2);
+}
+
+.filter-dropdown-btn.has-selection {
+    background: linear-gradient(135deg, #600018 0%, #4d0026 100%);
+    border: 2px solid #EFBF04;
+}
+
+.filter-dropdown-menu {
+    background: #FFFFFF;
+    border: 1px solid rgba(128, 0, 32, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(128, 0, 32, 0.1);
+    padding: 15px;
+    min-width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.filter-dropdown-menu .dropdown-item {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    color: #222222;
+    transition: all 0.2s ease;
+    margin: 2px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.filter-dropdown-menu .dropdown-item:hover {
+    background: rgba(128, 0, 32, 0.05);
+    color: #800020;
+}
+
+.filter-dropdown-menu .dropdown-item.active {
+    background: rgba(128, 0, 32, 0.1);
+    color: #800020;
+    font-weight: 600;
+}
+
+.filter-checkbox {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #800020;
+    border-radius: 4px;
+    margin-right: 10px;
+    cursor: pointer;
+    position: relative;
+}
+
+.filter-checkbox:checked {
+    background-color: #800020;
+    border-color: #800020;
+}
+
+.filter-checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    color: white;
+    font-size: 12px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.filter-count {
+    background: rgba(128, 0, 32, 0.1);
+    color: #800020;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.filter-actions {
+    border-top: 1px solid rgba(128, 0, 32, 0.1);
+    padding-top: 15px;
+    margin-top: 10px;
+}
+
+.apply-filter-btn {
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: 500;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.apply-filter-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(128, 0, 32, 0.2);
+}
+
+.active-filters-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #EFBF04;
+    color: #800020;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border: 2px solid white;
+}
+
+.active-filters-section {
+    background: rgba(128, 0, 32, 0.05);
+    border: 1px solid rgba(128, 0, 32, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.filter-badge {
+    background: linear-gradient(135deg, #800020 0%, #660033 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-badge-remove {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+.filter-badge-remove:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.clear-all-filters {
+    color: #800020;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.clear-all-filters:hover {
+    color: #600018;
+    text-decoration: underline;
+}
+
+.products-count {
+    font-size: 1.1rem;
+    color: #495057;
+}
+
+.products-count strong {
+    color: #800020;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center mb-5" style="color: #800020; font-family: 'Playfair Display', serif;">Каталог обуви</h1>
+    <!-- Вставьте этот код после заголовка страницы -->
+    {% if search_query %}
+        <div class="alert alert-info mb-4">
+            <h5>Результаты поиска: "{{ search_query }}"</h5>
+            <p class="mb-0">Найдено товаров: <strong>{{ products.total }}</strong></p>
+            <a href="{{ url_for('shop.index') }}" class="btn btn-sm btn-outline-info mt-2">
+                <i class="fas fa-times me-1"></i>Очистить поиск
+            </a>
+        </div>
+    {% endif %}
+    <!-- Панель фильтров -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card" style="border: 1px solid rgba(128, 0, 32, 0.1); border-radius: 12px;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="d-flex align-items-center">
+                            <h5 class="mb-0 me-3" style="color: #222222;">Фильтры:</h5>
+                            
+                            <!-- Выпадающий список категорий -->
+                            <div class="dropdown me-3">
+                                <button class="btn filter-dropdown-btn dropdown-toggle d-flex align-items-center {% if selected_categories %}has-selection{% endif %}" 
+                                        type="button" id="categoriesDropdown" data-bs-toggle="dropdown">
+                                    <i class="fas fa-list me-2"></i> Категории
+                                    {% if selected_categories %}
+                                        <span class="active-filters-badge">{{ selected_categories|length }}</span>
+                                    {% endif %}
+                                </button>
+                                
+                                <div class="dropdown-menu filter-dropdown-menu" aria-labelledby="categoriesDropdown">
+                                    <form id="categoriesForm">
+                                        {% for category in categories %}
+                                        <div class="dropdown-item {% if category.id in selected_categories %}active{% endif %}">
+                                            <div class="d-flex align-items-center">
+                                                <input type="checkbox" 
+                                                       class="filter-checkbox" 
+                                                       id="cat-{{ category.id }}" 
+                                                       value="{{ category.id }}"
+                                                       {% if category.id in selected_categories %}checked{% endif %}>
+                                                <label for="cat-{{ category.id }}" class="mb-0 ms-2 flex-grow-1">
+                                                    {{ category.name }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                        
+                                        <div class="filter-actions">
+                                            <button type="button" class="apply-filter-btn" onclick="applyCategoryFilter()">
+                                                <i class="fas fa-check me-2"></i>Применить
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <!-- Выпадающий список брендов -->
+                            <div class="dropdown">
+                                <button class="btn filter-dropdown-btn dropdown-toggle d-flex align-items-center {% if selected_brands %}has-selection{% endif %}" 
+                                        type="button" id="brandsDropdown" data-bs-toggle="dropdown">
+                                    <i class="fas fa-tags me-2"></i> Бренды
+                                    {% if selected_brands %}
+                                        <span class="active-filters-badge">{{ selected_brands|length }}</span>
+                                    {% endif %}
+                                </button>
+                                
+                                <div class="dropdown-menu filter-dropdown-menu" aria-labelledby="brandsDropdown">
+                                    <form id="brandsForm">
+                                        {% for brand in brands %}
+                                        <div class="dropdown-item {% if brand.id in selected_brands %}active{% endif %}">
+                                            <div class="d-flex align-items-center">
+                                                <input type="checkbox" 
+                                                       class="filter-checkbox" 
+                                                       id="brand-{{ brand.id }}" 
+                                                       value="{{ brand.id }}"
+                                                       {% if brand.id in selected_brands %}checked{% endif %}>
+                                                <label for="brand-{{ brand.id }}" class="mb-0 ms-2 flex-grow-1">
+                                                    {{ brand.name }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                        
+                                        <div class="filter-actions">
+                                            <button type="button" class="apply-filter-btn" onclick="applyBrandFilter()">
+                                                <i class="fas fa-check me-2"></i>Применить
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex align-items-center">
+                            <div class="products-count me-3">
+                                Найдено: <strong>{{ products.total }}</strong> товаров
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <!-- Активные фильтры - УПРОЩЕННЫЙ ВАРИАНТ -->
+                    {% if selected_categories or selected_brands %}
+                    <div class="active-filters-section mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong style="color: #800020;">Активные фильтры:</strong>
+                            <a href="{{ url_for('shop.index') }}" class="clear-all-filters">
+                                <i class="fas fa-times me-1"></i>Очистить все
+                            </a>
+                        </div>
+                        <div class="d-flex flex-wrap">
+                            {% for cat_id in selected_categories %}
+                                {% for category in categories %}
+                                    {% if category.id == cat_id %}
+                                    <div class="filter-badge">
+                                        <span>Категория: {{ category.name }}</span>
+                                        <button type="button" class="filter-badge-remove" onclick="removeCategoryFilter({{ cat_id }})">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                            
+                            {% for brand_id in selected_brands %}
+                                {% for brand in brands %}
+                                    {% if brand.id == brand_id %}
+                                    <div class="filter-badge">
+                                        <span>Бренд: {{ brand.name }}</span>
+                                        <button type="button" class="filter-badge-remove" onclick="removeBrandFilter({{ brand_id }})">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Список товаров -->
+    {% if products.items %}
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for product in products.items %}
+                <div class="col">
+                    {% include "includes/product_card.html" %}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Пагинация -->
+        {% if products.pages > 1 %}
+            {% include "includes/paginator.html" %}
+        {% endif %}
+        
+    {% else %}
+        <div class="text-center py-5">
+            <div class="alert alert-info" style="border-color: rgba(128, 0, 32, 0.2); background-color: rgba(128, 0, 32, 0.05);">
+                <h4 class="alert-heading" style="color: #800020;">Товары не найдены</h4>
+                <p class="mb-0" style="color: #222222;">
+                    {% if selected_categories or selected_brands %}
+                        Попробуйте изменить фильтры или
+                        <a href="{{ url_for('shop.index') }}" class="alert-link" style="color: #800020;">сбросить их</a>.
+                    {% else %}
+                        Пока нет доступных товаров в каталоге.
+                    {% endif %}
+                </p>
+            </div>
+            
+            {% if current_user.is_authenticated and not selected_categories and not selected_brands %}
+                <a href="{{ url_for('shop.create_product') }}" class="btn btn-primary mt-3" style="background: linear-gradient(135deg, #800020 0%, #660033 100%); border: none;">
+                    <i class="fas fa-plus me-2"></i>Добавить первый товар
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Функция удаления фильтра категории
+function removeCategoryFilter(categoryId) {
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    
+    // Получаем текущие категории
+    const categories = params.getAll('categories');
+    
+    // Удаляем нужную категорию
+    const newCategories = categories.filter(id => id !== categoryId.toString());
+    
+    // Обновляем параметры
+    params.delete('categories');
+    newCategories.forEach(id => params.append('categories', id));
+    
+    // Переходим по новому URL
+    window.location.href = url.origin + url.pathname + '?' + params.toString();
+}
+
+// Функция удаления фильтра бренда
+function removeBrandFilter(brandId) {
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    
+    // Получаем текущие бренды
+    const brands = params.getAll('brands');
+    
+    // Удаляем нужный бренд
+    const newBrands = brands.filter(id => id !== brandId.toString());
+    
+    // Обновляем параметры
+    params.delete('brands');
+    newBrands.forEach(id => params.append('brands', id));
+    
+    // Переходим по новому URL
+    window.location.href = url.origin + url.pathname + '?' + params.toString();
+}
+
+// Функция применения фильтра категорий
+function applyCategoryFilter() {
+    const form = document.getElementById('categoriesForm');
+    const checkboxes = form.querySelectorAll('input[type="checkbox"]:checked');
+    const values = Array.from(checkboxes).map(cb => cb.value);
+    
+    // Создаем URL с выбранными категориями
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    
+    // Удаляем старые категории
+    params.delete('categories');
+    
+    // Добавляем новые
+    values.forEach(value => params.append('categories', value));
+    
+    // Сохраняем выбранные бренды
+    const brandCheckboxes = document.querySelectorAll('#brandsForm input[type="checkbox"]:checked');
+    brandCheckboxes.forEach(cb => {
+        if (!params.has('brands', cb.value)) {
+            params.append('brands', cb.value);
+        }
+    });
+    
+    // Переходим по новому URL
+    window.location.href = url.origin + url.pathname + '?' + params.toString();
+}
+
+// Функция применения фильтра брендов
+function applyBrandFilter() {
+    const form = document.getElementById('brandsForm');
+    const checkboxes = form.querySelectorAll('input[type="checkbox"]:checked');
+    const values = Array.from(checkboxes).map(cb => cb.value);
+    
+    // Создаем URL с выбранными брендами
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    
+    // Удаляем старые бренды
+    params.delete('brands');
+    
+    // Добавляем новые
+    values.forEach(value => params.append('brands', value));
+    
+    // Сохраняем выбранные категории
+    const catCheckboxes = document.querySelectorAll('#categoriesForm input[type="checkbox"]:checked');
+    catCheckboxes.forEach(cb => {
+        if (!params.has('categories', cb.value)) {
+            params.append('categories', cb.value);
+        }
+    });
+    
+    // Переходим по новому URL
+    window.location.href = url.origin + url.pathname + '?' + params.toString();
+}
+
+// Предотвращаем закрытие dropdown при клике на чекбокс
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.filter-dropdown-menu input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    });
+    
+    // Добавляем обработчики для dropdown меню
+    const categoriesDropdown = document.getElementById('categoriesDropdown');
+    const brandsDropdown = document.getElementById('brandsDropdown');
+    
+    if (categoriesDropdown) {
+        categoriesDropdown.addEventListener('show.bs.dropdown', function() {
+            // Можно добавить логику при открытии
+        });
+    }
+    
+    if (brandsDropdown) {
+        brandsDropdown.addEventListener('show.bs.dropdown', function() {
+            // Можно добавить логику при открытии
+        });
+    }
+});
+</script>
+{% endblock %}

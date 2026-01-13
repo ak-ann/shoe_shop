@@ -1,0 +1,560 @@
+{% extends "base.html" %}
+
+{% block title %}🛒 Корзина покупок{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4 text-dark fw-bold">🛒 Корзина покупок</h1>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'warning' if category == 'warning' else 'info' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if cart_items|length == 0 %}
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="bi bi-cart-x" style="font-size: 5rem; color: #800020;"></i>
+            </div>
+            <h3 class="text-muted mb-3">Ваша корзина пуста</h3>
+            <p class="text-muted mb-4">Добавьте товары из каталога, чтобы продолжить покупки</p>
+            <a href="{{ url_for('shop.index') }}" class="btn text-white" style="background-color: #800020; border: none; padding: 12px 30px;">
+                <i class="bi bi-arrow-left me-2"></i>Перейти в каталог
+            </a>
+        </div>
+    {% else %}
+        <!-- Сообщения о скидках и ограничениях -->
+        <div class="alert alert-info d-flex align-items-center mb-3" role="alert">
+            <i class="bi bi-info-circle me-2"></i>
+            <div>
+                <small>Максимальное количество одного товара в корзине - 10 шт.</small>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-8 mb-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">Товары в корзине</h5>
+                        <span class="badge bg-800020 text-white">{{ total_quantity }} товар(ов)</span>
+                    </div>
+                    <div class="card-body p-0">
+                        {% for item in cart_items %}
+                        {% set item_id = item.cart_item_id %}
+                        <div class="p-3 border-bottom cart-item" data-item-id="{{ item_id }}" id="cart-item-{{ item_id }}">
+                            <div class="row align-items-center">
+                                <!-- Изображение товара -->
+                                <div class="col-3 col-md-2">
+                                    <div class="position-relative">
+                                        {% if item.image %}
+                                            <img src="{{ item.image }}" 
+                                                 class="img-fluid rounded" 
+                                                 alt="{{ item.name }}"
+                                                 style="height: 80px; width: 80px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="rounded d-flex align-items-center justify-content-center" 
+                                                 style="height: 80px; width: 80px; background-color: #FAFAFA;">
+                                                <i class="bi bi-image" style="color: #ccc; font-size: 1.5rem;"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Информация о товаре -->
+                                <div class="col-5 col-md-6">
+                                    <a href="{{ url_for('shop.product_detail_route', product_id=item.product_id) }}" 
+                                       class="text-decoration-none text-dark">
+                                        <h6 class="mb-1 fw-bold">{{ item.name }}</h6>
+                                    </a>
+                                    
+                                    {% if item.brand_name %}
+                                    <p class="text-muted mb-1" style="font-size: 0.85rem;">
+                                        <i class="bi bi-shop me-1"></i>{{ item.brand_name }}
+                                    </p>
+                                    {% endif %}
+                                    
+                                    {% if item.category_name %}
+                                    <p class="text-muted mb-1" style="font-size: 0.85rem;">
+                                        <i class="bi bi-tag me-1"></i>{{ item.category_name }}
+                                    </p>
+                                    {% endif %}
+                                    
+                                    {% if item.size %}
+                                    <p class="mb-1" style="font-size: 0.9rem;">
+                                        <i class="bi bi-rulers me-1" style="color: #800020;"></i>
+                                        <strong>Размер:</strong> {{ item.size }}
+                                    </p>
+                                    {% endif %}
+                                    
+                                    <!-- Цена -->
+                                    <div class="mb-1">
+                                        <span class="fw-bold" style="color: #800020; font-size: 1.1rem;">
+                                            {{ "%.2f"|format(item.price) }} BYN
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Статус наличия -->
+                                    <div class="mb-0">
+                                        {% if not item.in_stock %}
+                                            <span class="text-danger">
+                                                <i class="bi bi-x-circle-fill me-1"></i>
+                                                Нет в наличии
+                                            </span>
+                                        {% elif item.stock < item.quantity %}
+                                            <span class="text-warning">
+                                                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                                Осталось только {{ item.stock }} шт.
+                                            </span>
+                                        {% elif item.stock <= 5 %}
+                                            <span class="text-warning">
+                                                <i class="bi bi-exclamation-circle me-1"></i>
+                                                Осталось {{ item.stock }} шт.
+                                            </span>
+                                        {% else %}
+                                            <span class="text-success">
+                                                <i class="bi bi-check-circle-fill me-1"></i>
+                                                В наличии
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Управление количеством и цена -->
+                                <div class="col-4 col-md-4">
+                                    <div class="d-flex flex-column align-items-end">
+                                        <!-- Общая стоимость товара -->
+                                        <div class="mb-3">
+                                            <strong class="text-dark fs-5">
+                                                {{ "%.2f"|format(item.item_total) }} BYN
+                                            </strong>
+                                        </div>
+                                        
+                                        <!-- Управление количеством -->
+                                        <div class="d-flex align-items-center mb-2">
+                                            <form method="POST" action="{{ url_for('shop.update_cart_quantity_route', item_id=item_id) }}" 
+                                                  class="d-flex align-items-center quantity-form" data-item-id="{{ item_id }}">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary quantity-decrease" 
+                                                        style="width: 32px; height: 32px; padding: 0;">
+                                                    <i class="bi bi-dash"></i>
+                                                </button>
+                                                <input type="number" name="quantity" 
+                                                       class="form-control form-control-sm quantity-input mx-2" 
+                                                       value="{{ item.quantity }}" min="1" max="10"
+                                                       style="width: 60px; text-align: center;" 
+                                                       data-max-stock="{{ item.stock }}"
+                                                       onchange="this.form.submit()">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary quantity-increase" 
+                                                        style="width: 32px; height: 32px; padding: 0;">
+                                                    <i class="bi bi-plus"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                        
+                                        <!-- Удаление товара -->
+                                        <div>
+                                            <a href="{{ url_for('shop.remove_from_cart_route', item_id=item_id) }}" 
+                                               class="btn btn-sm border ajax-remove"
+                                               data-item-id="{{ item_id }}"
+                                               style="color: #dc3545; border-color: #dc3545 !important;">
+                                                <i class="bi bi-trash"></i> Удалить
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="card-footer bg-white border-top py-3">
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('shop.clear_cart_route') }}" 
+                               class="btn border"
+                               onclick="return confirm('Очистить всю корзину?');"
+                               style="color: #666; border-color: #ddd !important;">
+                                <i class="bi bi-trash me-1"></i>Очистить корзину
+                            </a>
+                            <a href="{{ url_for('shop.index') }}" class="btn border" style="color: #800020; border-color: #800020 !important;">
+                                <i class="bi bi-bag-plus me-1"></i>Продолжить покупки
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Итоговая информация -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 sticky-top" style="top: 20px;">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h5 class="mb-0 fw-bold">Итог заказа</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Сводка по товарам -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Товаров:</span>
+                                <span class="fw-medium">{{ total_quantity }} шт.</span>
+                            </div>
+                            
+                            <!-- Итоговая стоимость -->
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Товары:</span>
+                                <span class="fw-bold">{{ "%.2f"|format(total_price) }} BYN</span>
+                            </div>
+                            
+                            <!-- Доставка -->
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Доставка:</span>
+                                <span class="text-success fw-bold">Бесплатно</span>
+                            </div>
+                            
+                            <!-- Дополнительная скидка за сумму заказа -->
+                            {% set order_discount = 0 %}
+                            {% if total_price > 5000 %}
+                                {% set order_discount = total_price * 0.05 %}
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Скидка 5% от суммы:</span>
+                                    <span class="text-danger fw-bold">-{{ "%.2f"|format(order_discount) }} BYN</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <hr>
+                        
+                        <!-- Итог к оплате -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0 fw-bold">Итого:</h4>
+                            <h3 class="mb-0 fw-bold" style="color: #800020;">
+                                {% if total_price > 5000 %}
+                                    {{ "%.2f"|format(total_price - order_discount) }}
+                                {% else %}
+                                    {{ "%.2f"|format(total_price) }}
+                                {% endif %} BYN
+                            </h3>
+                        </div>
+                        
+                        <!-- Кнопка оформления -->
+                        <div class="mb-3">
+                            {% set has_unavailable_items = cart_items|selectattr('in_stock', 'equalto', false)|list|length > 0 %}
+                            {% if has_unavailable_items %}
+                                <button class="btn w-100" style="background-color: #ccc; color: #666; padding: 12px; font-size: 1.1rem;" disabled>
+                                    <i class="bi bi-exclamation-triangle me-2"></i>Есть недоступные товары
+                                </button>
+                                <div class="text-danger text-center mt-2" style="font-size: 0.85rem;">
+                                    Удалите товары не в наличии для оформления
+                                </div>
+                            {% else %}
+                                <a href="{{ url_for('shop.checkout_route') }}" class="btn w-100 text-white"
+                                   style="background-color: #800020; padding: 12px; font-size: 1.1rem;">
+                                    <i class="bi bi-credit-card me-2"></i>Перейти к оформлению
+                                </a>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Информация о доставке -->
+                        <div class="alert alert-light border mt-3" style="font-size: 0.85rem;">
+                            <div class="d-flex">
+                                <i class="bi bi-truck me-2 text-800020"></i>
+                                <div>
+                                    <strong>Бесплатная доставка</strong><br>
+                                    <small>По Минску - 1-2 дня, по Беларуси - 2-5 дней</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Модальное окно для подтверждения -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Вы уверены, что хотите удалить этот товар из корзины?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <a href="#" class="btn btn-danger" id="confirmDeleteBtn">Удалить</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+    
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Cart page loaded - working version');
+    
+    // AJAX обновление количества
+    document.querySelectorAll('.quantity-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const itemId = this.dataset.itemId;
+            const quantity = formData.get('quantity');
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Перезагружаем страницу, чтобы обновить общую стоимость
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error updating quantity:', error);
+                alert('Ошибка обновления количества');
+            });
+        });
+    });
+
+
+    // Обработчики для кнопок увеличения/уменьшения количества
+    document.querySelectorAll('.quantity-increase').forEach(button => {
+        button.addEventListener('click', function() {
+            const form = this.closest('.quantity-form');
+            const input = form.querySelector('.quantity-input');
+            const maxStock = parseInt(input.dataset.maxStock) || 10;
+            const maxAllowed = Math.min(maxStock, 10);
+            
+            let currentValue = parseInt(input.value);
+            if (currentValue < maxAllowed) {
+                input.value = currentValue + 1;
+                form.submit();
+            } else {
+                alert(`Максимально доступное количество: ${maxAllowed} шт.`);
+            }
+        });
+    });
+    
+    document.querySelectorAll('.quantity-decrease').forEach(button => {
+        button.addEventListener('click', function() {
+            const form = this.closest('.quantity-form');
+            const input = form.querySelector('.quantity-input');
+            
+            let currentValue = parseInt(input.value);
+            if (currentValue > 1) {
+                input.value = currentValue - 1;
+                form.submit();
+            }
+        });
+    });
+    
+    // AJAX удаление товаров с подтверждением
+    document.querySelectorAll('.ajax-remove').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const itemId = this.dataset.itemId;
+            const itemName = this.closest('.cart-item').querySelector('h6').textContent;
+            
+            // Показываем модальное окно подтверждения
+            const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            
+            // Обновляем текст подтверждения
+            document.querySelector('.modal-body').textContent = 
+                `Вы уверены, что хотите удалить "${itemName}" из корзины?`;
+            
+            // Обновляем ссылку удаления
+            confirmBtn.href = this.href;
+            
+            modal.show();
+            
+            // После закрытия модального окна переходим по ссылке
+            confirmBtn.addEventListener('click', function() {
+                window.location.href = this.href;
+            });
+        });
+    });
+    
+    // Проверка ввода количества
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('change', function() {
+            const value = parseInt(this.value);
+            const maxStock = parseInt(this.dataset.maxStock) || 10;
+            const maxAllowed = Math.min(maxStock, 10);
+            
+            if (value < 1) {
+                this.value = 1;
+            } else if (value > maxAllowed) {
+                this.value = maxAllowed;
+                alert(`Максимально доступное количество: ${maxAllowed} шт.`);
+            }
+        });
+        
+        input.addEventListener('keypress', function(e) {
+            // Разрешаем только цифры и клавиши управления
+            if (e.key < '0' || e.key > '9') {
+                if (!['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) {
+                    e.preventDefault();
+                }
+            }
+        });
+    });
+    
+    // Обновление корзины при изменении количества через Enter
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                this.closest('form').submit();
+            }
+        });
+    });
+    
+    // Показать/скрыть сообщения об ошибках
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alert);
+            setTimeout(() => bsAlert.close(), 5000);
+        }, 3000);
+    });
+});
+</script>
+
+<style>
+:root {
+    --primary-color: #800020;
+    --primary-light: rgba(128, 0, 32, 0.1);
+    --danger-color: #dc3545;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --border-radius: 10px;
+}
+
+.card {
+    border-radius: var(--border-radius) !important;
+    border: 1px solid var(--primary-light) !important;
+}
+
+.bg-800020 {
+    background-color: var(--primary-color) !important;
+}
+
+.btn {
+    border-radius: 6px !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(128, 0, 32, 0.15);
+}
+
+.btn-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.btn-outline-primary {
+    color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+.text-800020 {
+    color: var(--primary-color) !important;
+}
+
+/* Стили для полей ввода количества */
+.quantity-input {
+    border: 1px solid #ddd !important;
+    transition: all 0.2s !important;
+}
+
+.quantity-input:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(128, 0, 32, 0.1) !important;
+}
+
+.btn-outline-secondary {
+    border-color: #dee2e6 !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f8f9fa !important;
+}
+
+/* Анимации */
+.cart-item {
+    transition: background-color 0.2s ease;
+}
+
+.cart-item:hover {
+    background-color: rgba(128, 0, 32, 0.02);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .cart-item .row > div {
+        margin-bottom: 10px;
+    }
+    
+    .col-3, .col-5, .col-4 {
+        width: 100% !important;
+        flex: 0 0 auto;
+    }
+    
+    .d-flex.flex-column.align-items-end {
+        align-items: flex-start !important;
+        margin-top: 15px;
+    }
+    
+    .card-footer .d-flex {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .card-footer .btn {
+        width: 100%;
+    }
+    
+    .sticky-top {
+        position: static !important;
+    }
+    
+    .quantity-form {
+        justify-content: flex-start !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    h1 {
+        font-size: 1.5rem !important;
+    }
+    
+    .card-header h5 {
+        font-size: 1rem !important;
+    }
+}
+</style>
+{% endblock %}
