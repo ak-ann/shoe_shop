@@ -33,16 +33,19 @@
 - **Forms:** Flask-WTF, WTForms
 
 
-# 1. Клонирование репозитория
+## Установка и запуск
 
+Следуйте этим шагам, чтобы развернуть проект локально.
+
+### 1. Клонируем репозиторий
+```bash
 git clone https://github.com/ak-ann/shoe_shop.git
 cd shoe-shop
-
 
 2. Создание виртуального окружения
 python -m venv venv
 source venv/bin/activate  # Linux / macOS
- # или
+или
 venv\Scripts\activate     # Windows
 
 
@@ -53,6 +56,7 @@ pip install -r requirements.txt
 4. Настройка базы данных
 Создайте файл config.py на основе примера:
 cp config.example.py config.py
+Затем откройте config.py и внесите свои параметры (БД, email и т.д.).
 
 
 5. Запуск приложения
