@@ -33,6 +33,25 @@
 - **Forms:** Flask-WTF, WTForms
 
 
+
+##  Screenshots
+
+### Главная страница
+![Home page](screenshots/home.png)
+
+### Каталог с фильтрацией
+![Catalog](screenshots/catalog.png)
+
+### Страница товара
+![Product page](screenshots/product.png)
+
+### Корзина
+![Cart](screenshots/cart.png)
+
+### Админ-панель — управление брендами
+![Admin categories](screenshots/admin-brands.png)
+
+
 ## Установка и запуск
 
 Следуйте этим шагам, чтобы развернуть проект локально.
@@ -61,21 +80,3 @@ cp config.example.py config.py
 
 5. Запуск приложения
 flask run
-
-
-##  Screenshots
-
-### Главная страница
-![Home page](screenshots/home.png)
-
-### Каталог с фильтрацией
-![Catalog](screenshots/catalog.png)
-
-### Страница товара
-![Product page](screenshots/product.png)
-
-### Корзина
-![Cart](screenshots/cart.png)
-
-### Админ-панель — управление брендами
-![Admin categories](screenshots/admin-brands.png)
