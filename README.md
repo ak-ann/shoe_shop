@@ -35,7 +35,7 @@
 
 # 1. Клонирование репозитория
 
-git clone https://github.com/your-username/shoe-shop.git
+git clone https://github.com/ak-ann/shoe_shop.git
 cd shoe-shop
 
 
